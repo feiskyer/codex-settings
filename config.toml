@@ -17,10 +17,13 @@ http_headers = { "Authorization"= "Bearer sk-dummy"}
 wire_api = "chat"
 
 # MCP Tools
-[mcp_servers.context7]
-command = "npx"
-args = ["-y", "@upstash/context7-mcp@latest"]
-
 [mcp_servers.claude]
 command = "claude"
 args = ["mcp", "serve"]
+
+[mcp_servers.exa]
+url = "https://mcp.exa.ai/mcp"
+
+[mcp_servers.chrome]
+command = "npx"
+args = ["chrome-devtools-mcp@latest"]
