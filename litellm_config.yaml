@@ -2,6 +2,7 @@ general_settings:
   master_key: sk-dummy
 litellm_settings:
   drop_params: true
+  modify_params: true
 model_list:
 - model_name: claude-sonnet-4.5.5
   litellm_params:

@@ -1,0 +1,11 @@
+prefix_rule(
+    pattern = ["yt-dlp", "--version"],
+    decision = "allow",
+    match = [["yt-dlp", "--version"]],
+)
+
+prefix_rule(
+    pattern = ["yt-dlp"],
+    decision = "prompt",
+    match = [["yt-dlp", "--list-subs", "https://example.com"]],
+)

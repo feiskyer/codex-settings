@@ -1,0 +1,11 @@
+prefix_rule(
+    pattern = ["~/.codex/skills/autonomous-skill/scripts/run-session.sh"],
+    decision = "allow",
+    match = [["~/.codex/skills/autonomous-skill/scripts/run-session.sh", "--list"]],
+)
+
+prefix_rule(
+    pattern = ["codex", "exec"],
+    decision = "allow",
+    match = [["codex", "exec", "prompt"]],
+)

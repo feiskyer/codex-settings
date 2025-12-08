@@ -4,6 +4,10 @@ model = "kimi-k2-0905-preview"
 model_provider = "kimi"
 model_context_window = 256000
 approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[features]
+skills = true
 
 [model_providers.kimi]
 name     = "Kimi"

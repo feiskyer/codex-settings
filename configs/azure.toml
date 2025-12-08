@@ -6,7 +6,11 @@ model_reasoning_summary = "detailed"
 show_raw_agent_reasoning = true
 model_verbosity = "medium"
 approval_policy = "on-request"
+sandbox_mode = "workspace-write"
 model_reasoning_effort = "high"
+
+[features]
+skills = true
 
 [model_providers.azure]
 name = "Azure"

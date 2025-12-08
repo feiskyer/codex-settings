@@ -3,6 +3,10 @@
 model = "ZhipuAI/GLM-4.5"
 model_provider = "modelscope"
 approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[features]
+skills = true
 
 [model_providers.modelscope]
 name = "modelscope"

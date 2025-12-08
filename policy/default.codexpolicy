@@ -1,0 +1,41 @@
+prefix_rule(
+    pattern = ["ls"],
+    decision = "allow",
+    match = [["ls"], ["ls", "-la"]],
+)
+
+prefix_rule(
+    pattern = ["pwd"],
+    decision = "allow",
+    match = [["pwd"]],
+)
+
+prefix_rule(
+    pattern = ["cat"],
+    decision = "allow",
+    match = [["cat", "file.txt"]],
+)
+
+prefix_rule(
+    pattern = ["rg"],
+    decision = "allow",
+    match = [["rg", "--files"], ["rg", "foo"]],
+)
+
+prefix_rule(
+    pattern = ["find"],
+    decision = "allow",
+    match = [["find", "."]],
+)
+
+prefix_rule(
+    pattern = ["git", ["push", "fetch"]],
+    decision = "prompt",
+    match = [["git", "push"], ["git", "fetch"]],
+)
+
+prefix_rule(
+    pattern = ["rm", "-rf"],
+    decision = "forbidden",
+    match = [["rm", "-rf", "/"]],
+)
