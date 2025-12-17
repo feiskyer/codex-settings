@@ -1,10 +1,10 @@
 # Codex CLI Configuration
 # This configuration uses LiteLLM as the model provider gateway
 # See: https://docs.litellm.ai/docs/simple_proxy
-model = "gpt-5"
+model = "gpt-5.2"
 model_provider = "github"
 model_reasoning_summary = "detailed"
-show_raw_agent_reasoning = true
+show_raw_agent_reasoning = false
 model_verbosity = "medium"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
@@ -12,6 +12,10 @@ model_reasoning_effort = "high"
 
 [features]
 skills = true
+
+[sandbox_workspace_write]
+network_access = true
+streamable_shell = true
 
 # Model providers (LiteLLM as Github Copilot proxy)
 [model_providers.github]
@@ -24,9 +28,6 @@ wire_api = "chat"
 # [mcp_servers.claude] # Migrated to skills
 # command = "claude"
 # args = ["mcp", "serve"]
-
-[mcp_servers.exa]
-url = "https://mcp.exa.ai/mcp"
 
 [mcp_servers.chrome]
 command = "npx"
