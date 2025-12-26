@@ -185,6 +185,8 @@ For each task in `.autonomous/<task-name>/`:
 4. **One Task at a Time per Session**: Focus on completing tasks thoroughly
 5. **Auto-Continue**: Sessions auto-continue with 3s delay; Ctrl+C to pause
 6. **Session Resumption**: Use `--resume-last` to preserve Codex conversation context
+7. **Network Mode**: `--network` uses `--dangerously-bypass-approvals-and-sandbox`; only use in an isolated environment
+8. **Git Hygiene**: Consider adding `.autonomous/` to `.gitignore` to avoid committing logs
 
 ## Codex CLI Reference
 

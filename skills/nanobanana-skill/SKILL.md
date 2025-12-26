@@ -13,6 +13,12 @@ Generate or edit images using Google Gemini API through the nanobanana tool.
 2. **Python3 with depedent packages installed**: google-genai, Pillow, python-dotenv. They could be installed via `python3 -m pip install -r ~/.codex/skills/nanobanana-skill/requirements.txt` if not installed yet.
 3. **Executable**: `~/.codex/skills/nanobanana-skill/nanobanana.py`
 
+Example `.nanobanana.env`:
+
+```bash
+GEMINI_API_KEY=sk-dummy
+```
+
 ## Instructions
 
 ### For image generation
@@ -70,6 +76,11 @@ Generate or edit images using Google Gemini API through the nanobanana tool.
 - `1K` (default)
 - `2K`
 - `4K`
+
+### Optional Flags
+
+- `--enable-google-search` Enable Google Search tool for the model (default: disabled)
+- `--include-thoughts` Include model thinking in output (default: disabled)
 
 ## Examples
 

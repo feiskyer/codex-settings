@@ -21,6 +21,11 @@ This skill works with the [GitHub Spec-Kit CLI](https://github.com/github/spec-k
 
 **Storage**: Creates files in `.specify/specs/NNN-feature-name/` directory with numbered features
 
+## References
+
+- For detailed detection logic and status checks, see `helpers/detection-logic.md`.
+- For a runnable status report, use `scripts/detect-phase.sh`.
+
 ## When to Use
 
 - Setting up spec-kit in a project

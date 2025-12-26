@@ -13,7 +13,9 @@ Input YouTube URL: $ARGUMENTS
 
 1. **Verify URL Format**: Confirm the input is a valid YouTube URL (supports `youtube.com/watch?v=` or `youtu.be/` formats).
 
-2. **Get Video Information**: Use WebFetch or firecrawl to fetch the page and extract the video title for subsequent file naming.
+2. **Get Video Information**:
+   - If `yt-dlp` is available, prefer `yt-dlp --get-title "[VIDEO_URL]"`.
+   - If using browser automation, extract the title from the page (via snapshot or `document.title`) for file naming.
 
 ## Step 2: CLI Quick Extraction (Priority Attempt)
 

@@ -14,6 +14,7 @@ set -euo pipefail
 
 # Configuration
 AUTO_CONTINUE_DELAY=3
+CURRENT_TASK_NAME=""
 
 # Use CODEX_PLUGIN_ROOT or fallback to script directory
 if [ -n "${CODEX_PLUGIN_ROOT:-}" ]; then
@@ -54,6 +55,18 @@ print_error() {
 
 print_info() {
     echo -e "${CYAN}ℹ $1${NC}"
+}
+
+# Handle Ctrl+C gracefully
+handle_interrupt() {
+    echo ""
+    if [ -n "${CURRENT_TASK_NAME:-}" ]; then
+        print_warning "Interrupted. Progress saved in $AUTONOMOUS_DIR/$CURRENT_TASK_NAME/"
+        echo "Run again to continue: $0 --task-name $CURRENT_TASK_NAME --continue"
+    else
+        print_warning "Interrupted."
+    fi
+    exit 130
 }
 
 # Show help
@@ -251,8 +264,16 @@ is_complete() {
 # Extract session ID from JSON Lines output
 extract_session_id() {
     local log_file="$1"
-    # Look for thread.started event which contains thread_id
-    grep '"type":"thread.started"' "$log_file" 2>/dev/null | head -1 | sed 's/.*"thread_id":"\([^"]*\)".*/\1/' || echo ""
+    # Prefer thread_id from thread.started; fall back to any thread_id or session_id
+    local id=""
+    id=$(grep -m 1 '"type":"thread.started"' "$log_file" 2>/dev/null | sed -n 's/.*"thread_id":"\([^"]*\)".*/\1/p')
+    if [ -z "$id" ]; then
+        id=$(grep -m 1 '"thread_id"' "$log_file" 2>/dev/null | sed -n 's/.*"thread_id":"\([^"]*\)".*/\1/p')
+    fi
+    if [ -z "$id" ]; then
+        id=$(grep -m 1 '"session_id"' "$log_file" 2>/dev/null | sed -n 's/.*"session_id":"\([^"]*\)".*/\1/p')
+    fi
+    echo "$id"
 }
 
 # Run initializer session
@@ -460,6 +481,11 @@ main() {
 
     local task_dir
     task_dir=$(get_task_dir "$task_name")
+    CURRENT_TASK_NAME="$task_name"
+
+    if [ "$enable_network" = true ]; then
+        print_warning "Network mode uses --dangerously-bypass-approvals-and-sandbox. Use only in an isolated environment."
+    fi
 
     # Main loop
     while true; do
@@ -531,7 +557,7 @@ main() {
 }
 
 # Handle Ctrl+C gracefully
-trap 'echo ""; print_warning "Interrupted. Progress saved in $AUTONOMOUS_DIR/$task_name/"; echo "Run again to continue: $0 --task-name $task_name --continue"; exit 130' INT
+trap handle_interrupt INT
 
 # Run main
 main "$@"

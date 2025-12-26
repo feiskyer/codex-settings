@@ -22,6 +22,12 @@ detect_cli() {
     return 0
   fi
 
+  if command -v uv &> /dev/null; then
+    if uv tool list 2>/dev/null | grep -q "specify-cli"; then
+      return 0
+    fi
+  fi
+
   return 1
 }
 
@@ -32,6 +38,10 @@ check_initialization() {
   fi
 
   if [ ! -f ".specify/memory/constitution.md" ]; then
+    return 2
+  fi
+
+  if [ ! -d ".specify/scripts/bash" ] || [ ! -d ".specify/templates" ]; then
     return 2
   fi
 
@@ -121,8 +131,23 @@ generate_report() {
   if check_initialization; then
     echo -e "${GREEN}✓${NC} Project initialized"
   else
-    echo -e "${RED}✗${NC} Project not initialized"
-    echo -e "  ${YELLOW}Initialize:${NC} specify init . --ai codex"
+    local init_status=$?
+    if [ "$init_status" -eq 2 ]; then
+      echo -e "${YELLOW}⚠${NC} Project partially initialized"
+      if [ ! -f ".specify/memory/constitution.md" ]; then
+        echo -e "  ${YELLOW}Missing:${NC} .specify/memory/constitution.md"
+      fi
+      if [ ! -d ".specify/scripts/bash" ]; then
+        echo -e "  ${YELLOW}Missing:${NC} .specify/scripts/bash/"
+      fi
+      if [ ! -d ".specify/templates" ]; then
+        echo -e "  ${YELLOW}Missing:${NC} .specify/templates/"
+      fi
+      echo -e "  ${YELLOW}Next:${NC} Re-run init: specify init . --ai codex --force"
+    else
+      echo -e "${RED}✗${NC} Project not initialized"
+      echo -e "  ${YELLOW}Initialize:${NC} specify init . --ai codex"
+    fi
     return 1
   fi
   echo

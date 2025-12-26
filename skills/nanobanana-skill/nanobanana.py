@@ -79,8 +79,22 @@ def main():
         choices=["1K", "2K", "4K"],
         help="Resolution of the generated image (default: 1K)",
     )
+    parser.add_argument(
+        "--enable-google-search",
+        action="store_true",
+        help="Enable Google Search tool for the model (default: disabled)",
+    )
+    parser.add_argument(
+        "--include-thoughts",
+        action="store_true",
+        help="Include model thinking in output (default: disabled)",
+    )
 
     args = parser.parse_args()
+
+    output_dir = os.path.dirname(os.path.abspath(args.output))
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
 
     # Get aspect ratio from size
     aspect_ratio = ASPECT_RATIO_MAP.get(args.size, "16:9")
@@ -100,11 +114,22 @@ def main():
 
         # Add all input images
         for img_path in args.input:
+            if not os.path.isfile(img_path):
+                raise FileNotFoundError(f"Input image not found: {img_path}")
             image = Image.open(img_path)
             contents.append(image)
     else:
         print(f"Generating image (size: {args.size}) with prompt: {args.prompt}")
         contents.append(args.prompt)
+
+    tools = (
+        [types.Tool(google_search=types.GoogleSearch())]
+        if args.enable_google_search
+        else None
+    )
+    thinking_config = (
+        types.ThinkingConfig(include_thoughts=True) if args.include_thoughts else None
+    )
 
     # Generate or edit image with config
     response = client.models.generate_content(
@@ -112,14 +137,12 @@ def main():
         contents=contents,
         config=types.GenerateContentConfig(
             response_modalities=["TEXT", "IMAGE"],
-            tools=[types.Tool(google_search=types.GoogleSearch())],
             image_config=types.ImageConfig(
                 aspect_ratio=aspect_ratio,
                 image_size=args.resolution,
             ),
-            thinking_config=types.ThinkingConfig(
-                include_thoughts=True,
-            ),
+            tools=tools,
+            thinking_config=thinking_config,
         ),
     )
 
