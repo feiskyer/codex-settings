@@ -32,9 +32,9 @@ git log --oneline -10 2>/dev/null || echo "No git repository"
 
 # 7. Count remaining tasks
 echo "Remaining tasks:"
-grep -c '^\- \[ \]' {TASK_DIR}/task_list.md 2>/dev/null || echo "0"
+grep -Ec '^\- \[ \] Task [0-9]+:' {TASK_DIR}/task_list.md 2>/dev/null || echo "0"
 echo "Completed tasks:"
-grep -c '^\- \[x\]' {TASK_DIR}/task_list.md 2>/dev/null || echo "0"
+grep -Ec '^\- \[x\] Task [0-9]+:' {TASK_DIR}/task_list.md 2>/dev/null || echo "0"
 ```
 
 Understanding the task_list.md is critical - it contains all the work that needs to be done.
@@ -57,7 +57,7 @@ The previous session may have introduced issues. Before implementing anything ne
 
 - Note them in `{TASK_DIR}/progress.md`
 - Fix critical issues before moving on
-- Mark broken tasks back to `[ ]` in `{TASK_DIR}/task_list.md` if necessary
+- Do not rewrite task lines; keep task descriptions unchanged and record any regressions in `{TASK_DIR}/progress.md`
 
 ---
 
@@ -178,7 +178,7 @@ Add a new session entry:
 Make a descriptive commit:
 
 ```bash
-git add .
+git add {TASK_DIR}/task_list.md {TASK_DIR}/progress.md [project-files...]
 git commit -m "Complete Task 3: Implement user model
 
 - Added User class with CRUD operations

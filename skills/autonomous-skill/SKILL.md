@@ -13,23 +13,25 @@ Use the `run-session.sh` script to manage autonomous tasks:
 
 ```bash
 # Start a new autonomous task
-~/.codex/skills/autonomous-skill/scripts/run-session.sh "Build a REST API for todo app"
+bash ~/.codex/skills/autonomous-skill/scripts/run-session.sh "Build a REST API for todo app"
 
 # Continue an existing task
-~/.codex/skills/autonomous-skill/scripts/run-session.sh --task-name build-rest-api-todo --continue
+bash ~/.codex/skills/autonomous-skill/scripts/run-session.sh --task-name build-rest-api-todo --continue
 
 # List all tasks and their progress
-~/.codex/skills/autonomous-skill/scripts/run-session.sh --list
+bash ~/.codex/skills/autonomous-skill/scripts/run-session.sh --list
 
 # Show help
-~/.codex/skills/autonomous-skill/scripts/run-session.sh --help
+bash ~/.codex/skills/autonomous-skill/scripts/run-session.sh --help
 ```
 
 The runner intentionally leaves `--model` unset so Codex uses the active `config.toml` or selected profile model by default.
 
 ## Directory Structure
 
-All task data is stored in `.autonomous/<task-name>/` under the project root:
+All task data is stored in `.autonomous/<task-name>/` under the workspace root:
+- If the current directory is inside a git repo, the git top-level directory is used
+- Otherwise, the current working directory is used
 
 ```text
 project-root/
@@ -105,7 +107,7 @@ User Request → Generate Task Name → Create .autonomous/<task-name>/ → Exec
 ### Example 1: Start New Task
 
 ```bash
-~/.codex/skills/autonomous-skill/scripts/run-session.sh "Build a REST API for todo app"
+bash ~/.codex/skills/autonomous-skill/scripts/run-session.sh "Build a REST API for todo app"
 ```
 
 Output:
@@ -135,20 +137,20 @@ Continuing in 3 seconds... (Press Ctrl+C to pause)
 ### Example 2: Continue Existing Task
 
 ```bash
-~/.codex/skills/autonomous-skill/scripts/run-session.sh --task-name build-rest-api-todo --continue
+bash ~/.codex/skills/autonomous-skill/scripts/run-session.sh --task-name build-rest-api-todo --continue
 ```
 
 ### Example 3: Resume with Session Context
 
 ```bash
 # Resume the Codex session (preserves conversation context)
-~/.codex/skills/autonomous-skill/scripts/run-session.sh --task-name build-rest-api-todo --continue --resume-last
+bash ~/.codex/skills/autonomous-skill/scripts/run-session.sh --task-name build-rest-api-todo --continue --resume-last
 ```
 
 ### Example 4: List All Tasks
 
 ```bash
-~/.codex/skills/autonomous-skill/scripts/run-session.sh --list
+bash ~/.codex/skills/autonomous-skill/scripts/run-session.sh --list
 ```
 
 Output:
@@ -165,7 +167,7 @@ Output:
 
 ```bash
 # Enable network access for tasks that need API calls
-~/.codex/skills/autonomous-skill/scripts/run-session.sh --network "Fetch data from GitHub API and analyze"
+bash ~/.codex/skills/autonomous-skill/scripts/run-session.sh --network "Fetch data from GitHub API and analyze"
 ```
 
 ## Key Files
@@ -182,14 +184,14 @@ For each task in `.autonomous/<task-name>/`:
 ## Important Notes
 
 1. **Task Isolation**: Each task has its own directory, no conflicts
-2. **Task Naming**: Auto-generated from description (lowercase, hyphens, max 30 chars)
+2. **Task Naming**: Auto-generated from description (lowercase, hyphens, max 30 chars). Non-ASCII descriptions fall back to `task-YYYYMMDD-HHMMSS`.
 3. **Task List is Sacred**: Never delete or modify task descriptions, only mark `[x]`
 4. **One Task at a Time per Session**: Focus on completing tasks thoroughly
 5. **Auto-Continue**: Sessions auto-continue with 3s delay; Ctrl+C to pause
-6. **Session Resumption**: Use `--resume-last` to preserve Codex conversation context
+6. **Session Resumption**: Use `--resume-last` with `--continue` (or on its own to imply continue mode) to preserve Codex conversation context
 7. **Configured Model**: The runner does not pass `--model`; it uses the active Codex config/profile model
 8. **Network Mode**: `--network` switches the sandbox override to `danger-full-access` while keeping approval policy non-interactive
-9. **Git Hygiene**: Consider adding `.autonomous/` to `.gitignore` to avoid committing logs
+9. **Git Hygiene**: Avoid `git add .` blindly. Prefer explicitly adding project files plus `task_list.md` / `progress.md`, and ignore `session.log` / `session.id` if you do not want them versioned
 
 ## Codex CLI Reference
 
