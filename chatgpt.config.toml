@@ -1,0 +1,4 @@
+# ChatGPT subscription profile.
+# Run `codex login`, then use `codex --profile chatgpt`.
+model = "gpt-5.6-sol"
+model_provider = "openai"

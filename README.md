@@ -56,11 +56,10 @@ test ! -f ~/.codex/config.toml || \
 cp ~/codex-settings/config.toml ~/.codex/config.toml
 ```
 
-如需保留其他模型提供商和 LiteLLM 示例，一并复制：
+如需保留其他模型提供商的 Profiles 和 LiteLLM 示例，一并复制：
 
 ```bash
-mkdir -p ~/.codex/configs
-cp -R ~/codex-settings/configs/. ~/.codex/configs/
+cp ~/codex-settings/*.config.toml ~/.codex/
 cp ~/codex-settings/litellm_config.yaml ~/.codex/litellm_config.yaml
 ```
 
@@ -112,12 +111,6 @@ LiteLLM 使用 [litellm_config.yaml](litellm_config.yaml)，默认监听 `http:/
 python3 -m pip install -U 'litellm[proxy]'
 ```
 
-将 Codex 切换到对应配置：
-
-```bash
-cp ~/.codex/configs/github-copilot.toml ~/.codex/config.toml
-```
-
 在一个终端中启动 LiteLLM：
 
 ```bash
@@ -129,7 +122,7 @@ litellm --config ~/.codex/litellm_config.yaml
 ```bash
 codex doctor --summary
 codex mcp list
-codex
+codex --profile github-copilot
 ```
 
 这种方式由 LiteLLM 和它所连接的 GitHub Copilot 提供商处理上游认证，不需要运行 `codex login`。
@@ -139,19 +132,13 @@ codex
 <details>
 <summary><strong>使用 ChatGPT</strong></summary>
 
-将 Codex 切换到 ChatGPT 配置：
-
-```bash
-cp ~/.codex/configs/chatgpt.toml ~/.codex/config.toml
-```
-
 登录 ChatGPT 账号并启动 Codex：
 
 ```bash
 codex login
 codex doctor --summary
 codex mcp list
-codex
+codex --profile chatgpt
 ```
 
 这种方式直接使用 Codex 的 ChatGPT 登录状态，不需要启动本地代理或网关。
@@ -163,7 +150,7 @@ codex
 ```text
 .
 ├── config.toml                 # 默认配置：本地 copilot-gateway
-├── configs/                    # 其他模型提供商配置
+├── *.config.toml               # 可叠加到主配置的模型提供商 Profiles
 ├── litellm_config.yaml         # GitHub Copilot/LiteLLM 示例
 ├── skills/                     # Codex Skills 及其脚本和参考资料
 ├── prompts/                    # 历史 Custom Prompts
@@ -177,7 +164,7 @@ codex
 
 根目录的 [config.toml](config.toml) 当前使用：
 
-- 模型：`gpt-5.5`
+- 模型：`gpt-5.6-sol`
 - 模型提供商：`github`
 - 本地网关：`http://localhost:4141`
 - Web Search：`live`
@@ -199,10 +186,10 @@ network_access = false
 
 | 文件 | 适用场景 | 使用前需要做什么 |
 | --- | --- | --- |
-| [configs/chatgpt.toml](configs/chatgpt.toml) | 使用 OpenAI/ChatGPT 账号 | 运行 `codex login`，并确认配置中的模型仍对当前账号开放 |
-| [configs/azure.toml](configs/azure.toml) | Azure OpenAI | 填写实例地址和 API Key，确认部署名称与接口兼容性 |
-| [configs/github-copilot.toml](configs/github-copilot.toml) | 通过 LiteLLM 使用 GitHub Copilot | 先启动 `litellm_config.yaml`，再检查账号可用模型 |
-| [configs/openrouter.toml](configs/openrouter.toml) | OpenRouter | 填写 API Key，并确认目标模型支持当前调用方式 |
+| [chatgpt.config.toml](chatgpt.config.toml) | 使用 OpenAI/ChatGPT 账号 | 运行 `codex login`，再使用 `codex --profile chatgpt` |
+| [azure.config.toml](azure.config.toml) | Azure OpenAI | 填写项目地址，设置 `AZURE_OPENAI_API_KEY`，再使用 `codex --profile azure` |
+| [github-copilot.config.toml](github-copilot.config.toml) | 通过 LiteLLM 使用 GitHub Copilot | 先启动 `litellm_config.yaml`，再使用 `codex --profile github-copilot` |
+| [openrouter.config.toml](openrouter.config.toml) | OpenRouter | 设置 `OPENROUTER_API_KEY`，再使用 `codex --profile openrouter` |
 
 模型名称和功能开关会随 Codex 与上游服务更新。遇到无法识别的配置项时，可以运行：
 
@@ -219,11 +206,13 @@ codex doctor --summary
 ~/.codex/<name>.config.toml
 ```
 
-例如，`codex --profile work` 会在基础配置之上叠加 `~/.codex/work.config.toml`。Profile 不会自动清除基础配置中的模型提供商、权限或 MCP 设置，使用前要检查继承结果。
+例如，`codex --profile chatgpt` 会在基础配置之上叠加 `~/.codex/chatgpt.config.toml`。本仓库的 Profile 文件只覆盖模型、模型提供商和认证信息；权限、Features、MCP、TUI 等共享设置继续由 `config.toml` 提供。
 
 ### LiteLLM
 
-[litellm_config.yaml](litellm_config.yaml) 与 [configs/github-copilot.toml](configs/github-copilot.toml) 配套，默认监听 `http://localhost:4000`。它和根目录配置使用的 `localhost:4141` 不是同一个网关。
+当前 Codex 自定义模型提供商只接受 `wire_api = "responses"`。LiteLLM 可以作为兼容层，将 GitHub Copilot 等第三方模型提供商的 Chat Completions 等接口封装为 Responses API，从而供 Codex 使用。
+
+[litellm_config.yaml](litellm_config.yaml) 与 [github-copilot.config.toml](github-copilot.config.toml) 配套，默认监听 `http://localhost:4000`。它和根目录配置使用的 `localhost:4141` 不是同一个网关。
 
 ```bash
 python3 -m pip install -U 'litellm[proxy]'
@@ -329,6 +318,7 @@ codex mcp list
 
 - [Codex CLI 官方文档](https://developers.openai.com/codex/cli/)
 - [Codex 配置说明](https://developers.openai.com/codex/config-basic)
+- [Codex 配置参考](https://developers.openai.com/codex/config-reference)
 - [Codex Skills](https://developers.openai.com/codex/skills)
 - [Codex Rules](https://developers.openai.com/codex/rules)
 - [Codex GitHub 仓库](https://github.com/openai/codex)

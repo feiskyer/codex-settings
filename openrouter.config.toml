@@ -1,0 +1,15 @@
+# OpenRouter profile.
+# Set OPENROUTER_API_KEY, then run `codex --profile openrouter`.
+model = "gpt-5.6-sol"
+model_provider = "openrouter"
+
+[model_providers.openrouter]
+name                 = "OpenRouter"
+base_url             = "https://openrouter.ai/api/v1"
+env_key              = "OPENROUTER_API_KEY"
+env_key_instructions = "Set OPENROUTER_API_KEY in your environment"
+wire_api             = "responses"
+
+# You can also set the api-key in config file if don't want to set the env everytime
+# [model_providers.openrouter.http_headers]
+# api-key = "<YOUR_OPENROUTER_API_KEY>"

@@ -1,0 +1,15 @@
+# Azure OpenAI profile.
+# Set AZURE_OPENAI_API_KEY, then run `codex --profile azure`.
+model = "gpt-5.6-sol"
+model_provider = "azure"
+
+[model_providers.azure]
+name                 = "Azure"
+base_url             = "https://YOUR_PROJECT_NAME.openai.azure.com/openai/v1"
+env_key              = "AZURE_OPENAI_API_KEY"
+env_key_instructions = "Set AZURE_OPENAI_API_KEY in your environment"
+wire_api             = "responses"
+
+# You can also set the api-key in config file if don't want to set the env everytime
+# [model_providers.azure.http_headers]
+# api-key = "<YOUR_AZURE_OPENAI_API_KEY>"

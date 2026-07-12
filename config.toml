@@ -1,8 +1,8 @@
 # Codex CLI Configuration
 # This configuration uses copilot-gateway as the model provider gateway
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_provider = "github"
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "medium"
 model_verbosity = "medium"
 web_search = "live"
 personality = "friendly"
@@ -27,18 +27,6 @@ prevent_idle_sleep = true
 memories = true
 goals = true
 hooks = true
-
-[profiles.github]
-model = "gpt-5.5"
-model_provider = "github"
-model_reasoning_effort = "xhigh"
-
-[profiles.github.features]
-terminal_resize_reflow = true
-memories = true
-external_migration = false
-prevent_idle_sleep = true
-image_generation = false
 
 # Model providers (copilot-gateway as Github Copilot proxy)
 [model_providers.github]

@@ -1,0 +1,10 @@
+# GitHub Copilot through LiteLLM profile.
+# Start LiteLLM on localhost:4000, then run `codex --profile github-copilot`.
+model = "gpt-5.6-sol"
+model_provider = "github"
+
+[model_providers.github]
+name         = "GitHub Copilot via LiteLLM"
+base_url     = "http://localhost:4000"
+http_headers = { "Authorization" = "Bearer sk-dummy" }
+wire_api     = "responses"
