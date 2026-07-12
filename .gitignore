@@ -18,9 +18,19 @@
 .env.local
 
 # Codex files
+auth.json
+installation_id
 history.jsonl
 sessions
 version.json
+state_*.sqlite*
+logs_*.sqlite*
+goals_*.sqlite*
+memories_*.sqlite*
+log/
+app-server-daemon/
+vendor_imports/
+skills/.system/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

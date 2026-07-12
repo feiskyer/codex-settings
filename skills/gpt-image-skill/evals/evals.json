@@ -1,0 +1,23 @@
+{
+  "skill_name": "gpt-image-skill",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Generate a watercolor painting of a cat reading a book in a cozy library",
+      "expected_output": "A single PNG image in watercolor style showing a cat reading in a library setting",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Create a minimalist logo for a coffee shop called 'Bean & Brew' with transparent background",
+      "expected_output": "A PNG image with transparent background showing a clean minimalist coffee shop logo with the text 'Bean & Brew'",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Create a motivational poster with a mountain sunset and the text 'The journey begins with a single step'",
+      "expected_output": "A portrait-oriented image with a mountain sunset scene and legible text overlay reading 'The journey begins with a single step'",
+      "files": []
+    }
+  ]
+}

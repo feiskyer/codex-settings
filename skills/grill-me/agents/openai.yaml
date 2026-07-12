@@ -1,0 +1,7 @@
+interface:
+  display_name: "Grill Me 方案追问"
+  short_description: "通过逐问逐答挑战方案假设，并维护术语表和架构决策记录"
+  default_prompt: "Use $grill-me to challenge this proposal one decision at a time and record the resulting domain terms and ADRs."
+
+policy:
+  allow_implicit_invocation: false

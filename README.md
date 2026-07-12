@@ -1,457 +1,339 @@
-# OpenAI Codex CLI Settings and Custom Prompts
+# Codex CLI 配置与 Skills
 
-A curated collection of configurations, skills and custom prompts for [OpenAI Codex CLI](https://github.com/openai/codex), designed to enhance your development workflow with various model providers and reusable prompt templates.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> For Claude Code settings, skills, agents and custom commands, please refer [feiskyer/claude-code-settings](https://github.com/feiskyer/claude-code-settings).
+这是一个面向 [OpenAI Codex CLI](https://developers.openai.com/codex/cli/) 的个人配置仓库，包含常用配置、Skills、MCP 示例和命令规则。
 
-## Overview
+仓库里的配置主要服务于作者自己的开发环境，但也可以按需选取。使用前请先看清楚模型提供商、权限和外部依赖，不要直接把真实密钥提交到仓库。
 
-This repository provides:
+## 仓库包含什么
 
-- **Flexible Configuration**: Support for multiple model providers (LiteLLM/Copilot proxy, ChatGPT subscription, Azure OpenAI, OpenRouter)
-- **Custom Prompts**: Reusable prompt templates for common development tasks
-- **Skills (Experimental)**: Discoverable instruction bundles for specialized tasks (image generation, YouTube transcription, spec-driven workflows)
-- **Best Practices**: Pre-configured settings optimized for development workflows
-- **Easy Setup**: Simple installation and configuration process
+- Codex 主配置和多个模型提供商示例。
+- 一组可直接安装的 Skills，覆盖需求梳理、深度调研、图像生成、字幕提取和任务交接等场景。
+- LiteLLM、MCP 和命令规则示例。
+- 两个历史 Custom Prompts，保留作为迁移到 Skills 的参考。
 
-## Quick Start
+相关项目：[Claude Code Settings](https://github.com/feiskyer/claude-code-settings)
 
-### Installation
+## 安装
+
+### 1. 安装 Codex CLI
+
+使用 npm 安装：
 
 ```bash
-# Backup existing Codex configuration (if any)
-mv ~/.codex ~/.codex.bak
+npm install -g @openai/codex
+```
 
-# Clone this repository to ~/.codex
+也可以参考 [Codex CLI 官方文档](https://developers.openai.com/codex/cli/) 选择其他安装方式。
+
+### 2. 首次安装：直接克隆到 `~/.codex`
+
+如果本机还没有 `~/.codex`，最简单的方式是直接把仓库克隆到 Codex 的用户配置目录：
+
+```bash
 git clone https://github.com/feiskyer/codex-settings.git ~/.codex
-
-# Or symlink if you prefer to keep it elsewhere
-ln -s /path/to/codex-settings ~/.codex
 ```
 
-### Using npx skills
+这样根目录的 `config.toml` 会成为默认配置，`skills/` 下的内容也会被 Codex 自动发现。
 
-`npx skills` could be used to install skills only for your AI coding tools.
+<details>
+<summary><strong>如果 ~/.codex 已经存在：保留原目录并手动合并</strong></summary>
 
-```sh
-# List skills
-npx -y skills add -l feiskyer/codex-settings
-
-# Install all skills
-npx -y skills add --all feiskyer/codex-settings
-
-# Manually select a list of skills to install
-npx -y skills add feiskyer/codex-settings
-```
-
-### Basic Configuration
-
-The default `config.toml` uses LiteLLM as a gateway. To use it:
-
-1. Install LiteLLM and Codex CLI:
-
-   ```bash
-   pip install -U 'litellm[proxy]'
-   npm install -g @openai/codex
-   ```
-
-1. Create a LiteLLM config file (full example [litellm_config.yaml](litellm_config.yaml)):
-
-   ```yaml
-   general_settings:
-     master_key: sk-dummy
-   litellm_settings:
-     drop_params: true
-   model_list:
-   - model_name: gpt-5.1-codex-max
-     model_info:
-       mode: responses
-       supports_vision: true
-     litellm_params:
-       model: github_copilot/gpt-5.1-codex-max
-       drop_params: true
-       extra_headers:
-         editor-version: "vscode/1.95.0"
-         editor-plugin-version: "copilot-chat/0.26.7"
-   - model_name: claude-opus-4.5
-     litellm_params:
-       model: github_copilot/claude-opus-4.5
-       drop_params: true
-       extra_headers:
-         editor-version: "vscode/1.95.0"
-         editor-plugin-version: "copilot-chat/0.26.7"
-   - model_name: "*"
-     litellm_params:
-       model: "github_copilot/*"
-       extra_headers:
-         editor-version: "vscode/1.95.0"
-         editor-plugin-version: "copilot-chat/0.26.7"
-   ```
-
-2. Start LiteLLM proxy:
-
-   ```bash
-   litellm --config ~/.codex/litellm_config.yaml
-   # Runs on http://localhost:4000 by default
-   ```
-
-3. Run Codex:
-
-   ```bash
-   codex
-   ```
-
-## Configuration Files
-
-### Main Configuration
-
-- [config.toml](config.toml): Default configuration using LiteLLM gateway
-  - Model: `gpt-5` via `model_provider = "github"` (Copilot proxy on `http://localhost:4000`)
-  - Approval policy: `on-request`; reasoning summary: `detailed`; reasoning effort: `high`; raw agent reasoning visible
-  - MCP servers: `claude` (local), `exa` (hosted), `chrome` (DevTools over `npx`)
-
-### Alternative Configurations
-
-Located in `configs/` directory:
-
-- [OpenAI ChatGPT](configs/chatgpt.toml): Use ChatGPT subscription provider
-- [Azure OpenAI](configs/azure.toml): Use Azure OpenAI service provider
-- [Github Copilot](configs/github-copilot.toml): Use Github Copilot via LiteLLM proxy
-- [OpenRouter](configs/openrouter.toml): Use OpenRouter provider
-
-To use an alternative config:
+先把仓库克隆到其他目录。下面使用 `~/codex-settings`，你也可以换成其他位置：
 
 ```bash
-# Take ChatGPT for example
-cp ~/.codex/configs/chatgpt.toml ~/.codex/config.toml
+git clone https://github.com/feiskyer/codex-settings.git ~/codex-settings
+```
+
+复制配置前，先备份现有文件：
+
+```bash
+test ! -f ~/.codex/config.toml || \
+  cp ~/.codex/config.toml ~/.codex/config.toml.bak
+
+# 使用仓库默认配置
+cp ~/codex-settings/config.toml ~/.codex/config.toml
+```
+
+如需保留其他模型提供商和 LiteLLM 示例，一并复制：
+
+```bash
+mkdir -p ~/.codex/configs
+cp -R ~/codex-settings/configs/. ~/.codex/configs/
+cp ~/codex-settings/litellm_config.yaml ~/.codex/litellm_config.yaml
+```
+
+然后安装仓库中的 Skills：
+
+```bash
+mkdir -p ~/.codex/skills
+cp -R ~/codex-settings/skills/. ~/.codex/skills/
+```
+
+完成合并后，继续按照下方说明选择一种认证方式。
+
+</details>
+
+### 3. 选择认证方式
+
+下面三种方式任选其一。仓库默认使用 `copilot-gateway`，因为根目录的 `config.toml` 已经按该方式配置。
+
+#### copilot-gateway（默认）
+
+根目录的 [config.toml](config.toml) 已指向：
+
+```text
+http://localhost:4141
+```
+
+先在一个终端中启动 `copilot-gateway`：
+
+```bash
+npx copilot-gateway@latest start --proxy-env
+```
+
+保持网关进程运行。确认它已经监听 `localhost:4141` 后，在另一个终端中启动 Codex：
+
+```bash
+codex doctor --summary
+codex mcp list
 codex
 ```
 
-## Custom Prompts
-
-Custom prompts are stored in the `prompts/` directory. Access them via the `/prompts:` slash menu in Codex.
-
-- `/prompts:deep-reflector` - Analyze development sessions to extract learnings, patterns, and improvements for future interactions.
-- `/prompts:insight-documenter [breakthrough]` - Capture and document significant technical breakthroughs into reusable knowledge assets.
-- `/prompts:instruction-reflector` - Analyze and improve Codex instructions in AGENTS.md based on conversation history.
-- `/prompts:github-issue-fixer [issue-number]` - Systematically analyze, plan, and implement fixes for GitHub issues with PR creation.
-- `/prompts:github-pr-reviewer [pr-number]` - Perform thorough GitHub pull request code analysis and review.
-- `/prompts:ui-engineer [requirements]` - Create production-ready frontend solutions with modern UI/UX standards.
-- `/prompts:prompt-creator [requirements]` - Create Codex custom prompts with proper structure and best practices.
-
-### Creating Custom Prompts
-
-1. Create a new `.md` file in `~/.codex/prompts/`
-2. Use argument placeholders:
-   - `$1` to `$9`: Positional arguments
-   - `$ARGUMENTS`: All arguments joined by spaces
-   - `$$`: Literal dollar sign
-3. Restart Codex to load new prompts
-
-## Skills (Experimental)
-
-Skills are reusable instruction bundles that Codex automatically discovers at startup. Each skill has a name, description, and detailed instructions stored on disk. Codex injects only metadata (name, description, path) into context - the body stays on disk until needed.
-
-### How to Use Skills
-
-Skills are automatically loaded when Codex starts. To use a skill:
-
-1. **List all skills**: Use the `/skills` command to see all available skills
-
-   ```text
-   /skills
-   ```
-
-2. **Invoke a skill**: Use `$<skill-name> [prompt]` to invoke a skill with an optional prompt
-
-   ```text
-   $kiro-skill Create a feature spec for user authentication
-   $nanobanana-skill Generate an image of a sunset over mountains
-   ```
-
-Skills are stored in `~/.codex/skills/**/SKILL.md`. Only files named exactly `SKILL.md` are recognized.
-
-### Available Skills
+这种方式由 `copilot-gateway` 负责上游认证，不需要运行 `codex login`。仓库只提供 Codex 配置，不包含 `copilot-gateway` 的安装和启动脚本。
 
 <details>
-<summary>claude-skill - Handoff task to Claude Code CLI</summary>
+<summary><strong>使用 LiteLLM</strong></summary>
 
-#### [claude-skill](skills/claude-skill)
-
-Non-interactive automation mode for hands-off task execution using Claude Code. Use when you want to leverage Claude Code to implement features or review code.
-
-**Key Features:**
-
-- Multiple permission modes (default, acceptEdits, plan, bypassPermissions)
-- Autonomous execution without approval prompts
-- Streaming progress updates
-- Structured final summaries
-
-**Requirements:** Claude Code CLI installed (`npm install -g @anthropic-ai/claude-code`)
-
-</details>
-
-<details>
-<summary>autonomous-skill - Long-running task automation</summary>
-
-#### [autonomous-skill](skills/autonomous-skill)
-
-Execute complex, long-running tasks across multiple sessions using a dual-agent pattern (Initializer + Executor) with automatic session continuation.
-
-The runner keeps model selection with your active Codex config/profile and pins unattended execution through config overrides rather than hardcoding a model or relying on `--full-auto`.
-
-**Key Features:**
-
-- Dual-agent pattern (Initializer creates task list, Executor completes tasks)
-- Auto-continuation across sessions with progress tracking
-- Task isolation with per-task directories (`.autonomous/<task-name>/`)
-- Progress persistence via `task_list.md` and `progress.md`
-- Non-interactive mode execution
-
-**Usage:**
+LiteLLM 使用 [litellm_config.yaml](litellm_config.yaml)，默认监听 `http://localhost:4000`。先安装 LiteLLM：
 
 ```bash
-# Start a new autonomous task
-~/.codex/skills/autonomous-skill/scripts/run-session.sh "Build a REST API for todo app"
-
-# Continue an existing task
-~/.codex/skills/autonomous-skill/scripts/run-session.sh --task-name build-rest-api-todo --continue
-
-# List all tasks
-~/.codex/skills/autonomous-skill/scripts/run-session.sh --list
+python3 -m pip install -U 'litellm[proxy]'
 ```
 
-</details>
-
-<details>
-<summary>deep-research - Multi-agent deep research orchestration</summary>
-
-#### [deep-research](skills/deep-research)
-
-Multi-instance (multi-agent) orchestration workflow for deep research tasks. Breaks down research objectives into parallelizable sub-goals, runs child processes via `codex exec`, and aggregates results into polished reports.
-
-**Key Features:**
-
-- Parallel sub-task execution with `codex exec` in sandboxed environments
-- Automatic aggregation and chapter-by-chapter refinement
-- Structured output with deliverable reports (not chat messages)
-- Progress tracking with detailed logs per sub-task
-- Tool priority: skills → MCP (`firecrawl` → `tavily`) → direct fetch
-
-**Use Cases:**
-
-- Systematic web/document research
-- Competitor/industry analysis
-- Batch link/dataset retrieval
-- Long-form writing with evidence integration
-
-**Workflow:**
-
-1. Pre-execution planning & reconnaissance
-2. Sub-goal identification and task decomposition
-3. Generate dispatch scripts with parallel execution
-4. Design child process prompts
-5. Parallel execution with monitoring
-6. Programmatic aggregation into base draft
-7. Interpret results and design structure
-8. Chapter-by-chapter refinement
-9. Final delivery as standalone file
-
-**Output:** All artifacts saved to `.research/<name>/` directory including logs, raw data, and final polished report.
-
-</details>
-
-<details>
-<summary>nanobanana-skill - Image generation with Gemini</summary>
-
-#### [nanobanana-skill](skills/nanobanana-skill)
-
-Generate or edit images using Google Gemini API via nanobanana. Use when creating, generating, or editing images.
-
-**Key Features:**
-
-- Image generation with various aspect ratios (square, portrait, landscape, ultra-wide)
-- Image editing capabilities
-- Multiple model options (gemini-3-pro-image-preview, gemini-2.5-flash-image)
-- Resolution options (1K, 2K, 4K)
-
-**Requirements:**
-
-- `GEMINI_API_KEY` configured in `~/.nanobanana.env`
-- Python3 with google-genai, Pillow, python-dotenv
-
-</details>
-
-<details>
-<summary>youtube-transcribe-skill - Extract YouTube subtitles</summary>
-
-#### [youtube-transcribe-skill](skills/youtube-transcribe-skill)
-
-Extract subtitles/transcripts from a YouTube video URL and save as a local file.
-
-**Key Features:**
-
-- Dual extraction methods: CLI (`yt-dlp`) and Browser Automation (fallback)
-- Automatic subtitle language selection (zh-Hans, zh-Hant, en)
-- Cookie handling for age-restricted content
-- Saves transcripts to local text files
-
-**Requirements:**
-
-- `yt-dlp` (for CLI method), or
-- Browser automation MCP server (for fallback method)
-
-</details>
-
-<details>
-<summary>kiro-skill - Interactive feature development</summary>
-
-#### [kiro-skill](skills/kiro-skill)
-
-Interactive feature development workflow from idea to implementation. Creates requirements (EARS format), design documents, and implementation task lists.
-
-**Triggered by:** "kiro" or references to `.kiro/specs/` directory
-
-**Workflow:**
-
-1. **Requirements** → Define what needs to be built (EARS format with user stories)
-2. **Design** → Determine how to build it (architecture, components, data models)
-3. **Tasks** → Create actionable implementation steps (test-driven, incremental)
-4. **Execute** → Implement tasks one at a time
-
-**Storage:** Creates files in `.kiro/specs/{feature-name}/` directory
-
-</details>
-
-<details>
-<summary>spec-kit-skill - Constitution-based development</summary>
-
-#### [spec-kit-skill](skills/spec-kit-skill)
-
-GitHub Spec-Kit integration for constitution-based spec-driven development.
-
-**Triggered by:** "spec-kit", "speckit", "constitution", "specify", or references to `.specify/` directory
-
-**Prerequisites:**
+将 Codex 切换到对应配置：
 
 ```bash
-# Install spec-kit CLI
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
-
-# Initialize project
-specify init . --ai codex
+cp ~/.codex/configs/github-copilot.toml ~/.codex/config.toml
 ```
 
-**7-Phase Workflow:**
+在一个终端中启动 LiteLLM：
 
-1. **Constitution** → Establish governing principles
-2. **Specify** → Define functional requirements
-3. **Clarify** → Resolve ambiguities (max 5 questions)
-4. **Plan** → Create technical strategy
-5. **Tasks** → Generate dependency-ordered tasks
-6. **Analyze** → Validate consistency (read-only)
-7. **Implement** → Execute implementation
+```bash
+litellm --config ~/.codex/litellm_config.yaml
+```
+
+确认 LiteLLM 使用的 GitHub Copilot 提供商已经完成认证，然后在另一个终端中启动 Codex：
+
+```bash
+codex doctor --summary
+codex mcp list
+codex
+```
+
+这种方式由 LiteLLM 和它所连接的 GitHub Copilot 提供商处理上游认证，不需要运行 `codex login`。
 
 </details>
 
-## Configuration Options
+<details>
+<summary><strong>使用 ChatGPT</strong></summary>
 
-### Approval Policies
+将 Codex 切换到 ChatGPT 配置：
 
-- `untrusted`: Prompt for untrusted commands (recommended)
-- `on-failure`: Only prompt when sandbox commands fail
-- `on-request`: Model decides when to ask
-- `never`: Auto-approve all commands (use with caution)
+```bash
+cp ~/.codex/configs/chatgpt.toml ~/.codex/config.toml
+```
 
-### Sandbox Modes
+登录 ChatGPT 账号并启动 Codex：
 
-- `read-only`: Can read files, no writes or network
-- `workspace-write`: Can write to workspace, network configurable
-- `danger-full-access`: Full system access (use in containers only)
+```bash
+codex login
+codex doctor --summary
+codex mcp list
+codex
+```
 
-### Reasoning Settings
+这种方式直接使用 Codex 的 ChatGPT 登录状态，不需要启动本地代理或网关。
 
-For reasoning-capable models (o3, gpt-5):
+</details>
 
-- **Effort**: `minimal`, `low`, `medium`, `high`
-- **Summary**: `auto`, `concise`, `detailed`, `none`
+## 目录结构
 
-### Shell Environment
+```text
+.
+├── config.toml                 # 默认配置：本地 copilot-gateway
+├── configs/                    # 其他模型提供商配置
+├── litellm_config.yaml         # GitHub Copilot/LiteLLM 示例
+├── skills/                     # Codex Skills 及其脚本和参考资料
+├── prompts/                    # 历史 Custom Prompts
+├── policy/                     # 旧格式的命令规则示例
+└── LICENSE                     # MIT License
+```
 
-Control which environment variables are passed to subprocesses:
+## 配置说明
+
+### 默认配置
+
+根目录的 [config.toml](config.toml) 当前使用：
+
+- 模型：`gpt-5.5`
+- 模型提供商：`github`
+- 本地网关：`http://localhost:4141`
+- Web Search：`live`
+- MCP：Chrome DevTools MCP
+- 审批策略：`never`
+- 沙箱模式：`danger-full-access`
+
+如果不需要完全开放的本地权限，建议至少改成：
 
 ```toml
-[shell_environment_policy]
-inherit = "all"  # all, core, none
-exclude = ["AWS_*", "AZURE_*"]  # Exclude patterns
-set = { CI = "1" }  # Force-set values
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+network_access = false
 ```
 
-## Advanced Features
+### 其他配置
+
+| 文件 | 适用场景 | 使用前需要做什么 |
+| --- | --- | --- |
+| [configs/chatgpt.toml](configs/chatgpt.toml) | 使用 OpenAI/ChatGPT 账号 | 运行 `codex login`，并确认配置中的模型仍对当前账号开放 |
+| [configs/azure.toml](configs/azure.toml) | Azure OpenAI | 填写实例地址和 API Key，确认部署名称与接口兼容性 |
+| [configs/github-copilot.toml](configs/github-copilot.toml) | 通过 LiteLLM 使用 GitHub Copilot | 先启动 `litellm_config.yaml`，再检查账号可用模型 |
+| [configs/openrouter.toml](configs/openrouter.toml) | OpenRouter | 填写 API Key，并确认目标模型支持当前调用方式 |
+
+模型名称和功能开关会随 Codex 与上游服务更新。遇到无法识别的配置项时，可以运行：
+
+```bash
+codex features list
+codex doctor --summary
+```
 
 ### Profiles
 
-Define multiple configuration profiles:
+当前 Codex 通过独立文件加载 Profile：
 
-```toml
-[profiles.openrouter]
-model = "gpt-5"
-model_reasoning_effort = "high"
-approval_policy = "on-request"
-sandbox_mode = "workspace-write"
-model_provider = "openrouter"
-
-[profiles.github]
-model = "gpt-5"
-model_reasoning_effort = "high"
-approval_policy = "on-request"
-sandbox_mode = "workspace-write"
-model_provider = "github"
-
-[model_providers.github]
-name     = "OpenAI"
-base_url = "http://localhost:4000"
-http_headers = { "Authorization"= "Bearer sk-dummy" }
-wire_api = "responses"
-
-[model_providers.openrouter]
-name     = "OpenRouter"
-base_url = "https://openrouter.ai/api/v1"
-http_headers = { "Authorization"= "Bearer [YOUR-API-KEY]"}
-wire_api = "responses"
+```text
+~/.codex/<name>.config.toml
 ```
 
-Use with: `codex --profile openrouter`
+例如，`codex --profile work` 会在基础配置之上叠加 `~/.codex/work.config.toml`。Profile 不会自动清除基础配置中的模型提供商、权限或 MCP 设置，使用前要检查继承结果。
 
-### MCP Servers
+### LiteLLM
 
-Extend Codex with Model Context Protocol servers:
+[litellm_config.yaml](litellm_config.yaml) 与 [configs/github-copilot.toml](configs/github-copilot.toml) 配套，默认监听 `http://localhost:4000`。它和根目录配置使用的 `localhost:4141` 不是同一个网关。
 
-```toml
-[mcp_servers.context7]
-command = "npx"
-args = ["-y", "@upstash/context7-mcp@latest"]
+```bash
+python3 -m pip install -U 'litellm[proxy]'
+litellm --config ~/.codex/litellm_config.yaml
 ```
 
-## Project Documentation
+### MCP
 
-Codex automatically reads `AGENTS.md` files in your project to understand context. Please always create one in your project root with `/init` command on your first codex run.
+默认配置会通过 `npx` 启动 Chrome DevTools MCP；部分备用配置还引用 Context7 或 Claude Code MCP。启用前请确认相关命令已经安装，并检查它们可以访问哪些文件和网络资源。
 
-## References
+团队环境中建议固定 npm 包版本，不要长期依赖 `@latest`。
 
-- [Codex CLI Official Docs](https://developers.openai.com/codex/cli/)
-- [Codex GitHub Repository](https://github.com/openai/codex)
-- [LiteLLM Documentation](https://docs.litellm.ai/)
+## Skills（技能）
 
-## Contributing
+| 名称 | 用途 | 依赖或注意事项 |
+| --- | --- | --- |
+| [brainstorming](skills/brainstorming/) | 实现前梳理需求、比较方案并形成设计文档 | 可视化伴侣需要 Node.js、浏览器和本机端口权限 |
+| [claude-skill](skills/claude-skill/) | 把任务交给 Claude Code CLI 执行 | 需要安装并登录 `claude` CLI |
+| [deep-research](skills/deep-research/) | 并行执行深度调研并汇总为完整报告 | 需要 Codex CLI；联网和 MCP 权限按任务配置 |
+| [gpt-image-skill](skills/gpt-image-skill/) | 使用 OpenAI Image API 生成或编辑图片 | 需要 Python、`OPENAI_API_KEY` 和对应依赖 |
+| [grill-me](skills/grill-me/) | 逐项追问方案，并维护术语表和 ADR | 会在项目中写入设计与决策文档 |
+| [handoff](skills/handoff/) | 把当前会话整理成下一位 Agent 可直接接手的交接文档 | 交接文件写入系统临时目录 |
+| [nanobanana-skill](skills/nanobanana-skill/) | 使用 Gemini 图像模型生成或编辑图片 | 需要 Python、`GEMINI_API_KEY` 和对应依赖 |
+| [youtube-transcribe-skill](skills/youtube-transcribe-skill/) | 提取 YouTube 字幕或转录文本 | 需要 `yt-dlp`，或使用 Chrome DevTools MCP 作为备用方案 |
 
-Contributions welcome! Feel free to:
+显式调用示例：
 
-- Add new custom prompts
-- Share alternative configurations
-- Improve documentation
-- Report issues and suggest features
+```text
+$brainstorming 帮我把这个产品想法整理成可执行的设计
+$grill-me 逐项挑战一下这份技术方案
+$handoff 把当前进度整理成交接文档
+$gpt-image-skill 生成一张产品发布海报
+```
 
-## LICENSE
+### 图像技能依赖
 
-This project is released under MIT License - See [LICENSE](LICENSE) for details.
+建议使用独立虚拟环境安装 Python 依赖：
+
+```bash
+python3 -m venv ~/.codex/.venv
+source ~/.codex/.venv/bin/activate
+python -m pip install -r ~/.codex/skills/gpt-image-skill/requirements.txt
+python -m pip install -r ~/.codex/skills/nanobanana-skill/requirements.txt
+```
+
+API Key 应保存在本地环境变量或 Skill 指定的私有环境文件中，不要写进仓库。
+
+## 历史 Prompts 和规则文件
+
+`prompts/` 中保留了两个旧版 Custom Prompts。Codex 已不再推荐这种方式，新工作流应优先写成 Skill。
+
+`policy/` 中的 `.codexpolicy` 文件也采用旧命名。当前 Codex 从 `~/.codex/rules/*.rules` 或受信任项目中的 `.codex/rules/*.rules` 加载规则。迁移前请逐行检查内容，再把需要的文件复制并改为 `.rules` 后缀。
+
+```bash
+mkdir -p ~/.codex/rules
+cp ~/.codex/policy/default.codexpolicy ~/.codex/rules/default.rules
+```
+
+规则只能控制命令审批，不能替代沙箱或操作系统权限隔离。
+
+## 开发和检查
+
+修改配置或 Skill 后，建议运行：
+
+```bash
+# 检查 TOML 语法
+python3 -c 'import pathlib, tomllib; [tomllib.loads(p.read_text()) for p in pathlib.Path(".").glob("**/*.toml")]'
+
+# 检查 Codex 配置、认证、MCP 和网络状态
+codex doctor --summary
+
+# 查看当前版本支持的功能开关
+codex features list
+
+# 查看 MCP 配置
+codex mcp list
+```
+
+新增或修改脚本时，还要检查 `--help`、最小可用示例和常见失败路径。测试外部 API 时使用最小权限凭据，并清理日志中的敏感信息。
+
+## 安全提醒
+
+- 不要提交 API Key、访问令牌、Cookie、真实 Authorization Header 或包含隐私信息的日志。
+- 不要在不可信项目中直接使用 `danger-full-access`、`approval_policy = "never"` 或过于宽泛的 allow 规则。
+- 安装 Skill、MCP 服务或第三方依赖前，先阅读源码并确认网络访问范围。
+- 使用第三方模型提供商时，确认代码和提示词的保存、处理和合规政策。
+- 如需报告安全问题，优先使用 GitHub 的私密漏洞报告功能；如果仓库没有启用，请先通过维护者的 GitHub 主页联系，不要在公开 Issue 中披露细节或凭据。
+
+## 贡献
+
+欢迎通过 [Issues](https://github.com/feiskyer/codex-settings/issues) 和 [Pull Requests](https://github.com/feiskyer/codex-settings/pulls) 提交改进。
+
+提交前请确认：
+
+1. 没有包含真实密钥、个人配置或敏感日志。
+2. 新配置使用清晰的占位符，并说明前置条件。
+3. 新 Skill 使用 kebab-case 目录名，且 `SKILL.md` 包含准确的 `name` 和 `description`。
+4. 新脚本说明依赖、输入、输出和失败行为。
+5. README、命令示例和实际目录结构保持一致。
+6. 已完成与改动相匹配的本地检查，并在 PR 中记录结果。
+
+## 参考资料
+
+- [Codex CLI 官方文档](https://developers.openai.com/codex/cli/)
+- [Codex 配置说明](https://developers.openai.com/codex/config-basic)
+- [Codex Skills](https://developers.openai.com/codex/skills)
+- [Codex Rules](https://developers.openai.com/codex/rules)
+- [Codex GitHub 仓库](https://github.com/openai/codex)
+- [LiteLLM 文档](https://docs.litellm.ai/)
+
+## 许可证
+
+本项目采用 [MIT License](LICENSE)。

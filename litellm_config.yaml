@@ -5,12 +5,22 @@ litellm_settings:
   drop_params: true
   modify_params: true
 model_list:
-- model_name: gpt-5.2
+- model_name: gpt-5.4
   model_info:
     mode: responses
     supports_vision: true
   litellm_params:
-    model: github_copilot/gpt-5.2
+    model: github_copilot/gpt-5.4
+    drop_params: true
+    extra_headers:
+      editor-version: "vscode/1.95.0"
+      editor-plugin-version: "copilot-chat/0.26.7"
+- model_name: gpt-5.3-codex
+  model_info:
+    mode: responses
+    supports_vision: true
+  litellm_params:
+    model: github_copilot/gpt-5.3-codex
     drop_params: true
     extra_headers:
       editor-version: "vscode/1.95.0"
@@ -21,16 +31,6 @@ model_list:
     supports_vision: true
   litellm_params:
     model: github_copilot/gpt-5.2-codex
-    drop_params: true
-    extra_headers:
-      editor-version: "vscode/1.95.0"
-      editor-plugin-version: "copilot-chat/0.26.7"
-- model_name: gpt-5.1-codex-max
-  model_info:
-    mode: responses
-    supports_vision: true
-  litellm_params:
-    model: github_copilot/gpt-5.1-codex-max
     drop_params: true
     extra_headers:
       editor-version: "vscode/1.95.0"

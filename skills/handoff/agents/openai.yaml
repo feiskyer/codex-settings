@@ -1,0 +1,7 @@
+interface:
+  display_name: "会话交接"
+  short_description: "将当前工作压缩为脱敏、可执行且便于下一位 Agent 接续的交接文档"
+  default_prompt: "Use $handoff to create a concise, sanitized handoff document for the next agent."
+
+policy:
+  allow_implicit_invocation: false

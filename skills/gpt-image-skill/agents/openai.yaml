@@ -1,0 +1,4 @@
+interface:
+  display_name: "GPT Image"
+  short_description: "使用 OpenAI Image API 生成、编辑或组合图像并保存到本地"
+  default_prompt: "Use $gpt-image-skill to generate or edit an image with the OpenAI Image API and save the result locally."

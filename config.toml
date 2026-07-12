@@ -1,44 +1,60 @@
 # Codex CLI Configuration
-# This configuration uses LiteLLM as the model provider gateway
-# See: https://docs.litellm.ai/docs/simple_proxy
-model = "gpt-5.4"
+# This configuration uses copilot-gateway as the model provider gateway
+model = "gpt-5.5"
 model_provider = "github"
+model_reasoning_effort = "xhigh"
 model_verbosity = "medium"
-approval_policy = "on-request"
-sandbox_mode = "workspace-write"
-model_reasoning_effort = "high"
+web_search = "live"
+personality = "friendly"
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
 suppress_unstable_features_warning = true
-web_search = "disabled" # live
-personality = "pragmatic"
 
 [features]
-skills = true
-unified_exec = true
-shell_snapshot = true
-multi_agent = true
-steer = true
+apps = true
 collaboration_modes = true
+multi_agent = true
+remote_connections = true
 personality = true
+shell_snapshot = true
+steer = true
+unified_exec = true
 voice_transcription = true
+guardian_approval = true
+prevent_idle_sleep = true
+memories = true
+goals = true
+hooks = true
 
-# Model providers (LiteLLM as Github Copilot proxy)
+[profiles.github]
+model = "gpt-5.5"
+model_provider = "github"
+model_reasoning_effort = "xhigh"
+
+[profiles.github.features]
+terminal_resize_reflow = true
+memories = true
+external_migration = false
+prevent_idle_sleep = true
+image_generation = false
+
+# Model providers (copilot-gateway as Github Copilot proxy)
 [model_providers.github]
 name     = "Github"
-base_url = "http://localhost:4000"
+base_url = "http://localhost:4141"
 http_headers = { "Authorization"= "Bearer sk-dummy" }
 wire_api = "responses"
 
 [sandbox_workspace_write]
 network_access = true
 
-# MCP Tools
-[mcp_servers.claude]
-command = "claude"
-args = ["mcp", "serve"]
-
+# MCP Servers
 [mcp_servers.chrome]
 command = "npx"
 args = ["chrome-devtools-mcp@latest", "--no-usage-statistics", "--autoConnect"]
+startup_timeout_sec = 60
 
 [tui]
 status_line = ["model-with-reasoning", "context-remaining", "current-dir", "model-name", "git-branch", "context-used", "context-window-size", "used-tokens", "total-output-tokens", "five-hour-limit", "weekly-limit"]
