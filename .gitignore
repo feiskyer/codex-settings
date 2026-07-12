@@ -18,6 +18,7 @@
 .env.local
 
 # Codex files
+!AGENTS.md
 auth.json
 installation_id
 history.jsonl

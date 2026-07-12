@@ -1,0 +1,4 @@
+interface:
+  display_name: "YouTube 转录"
+  short_description: "下载 YouTube 字幕并转换为带时间戳的本地文本文件"
+  default_prompt: "Use $youtube-transcribe-skill to extract this YouTube video's subtitles into a timestamped local text file."

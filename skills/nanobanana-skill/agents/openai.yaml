@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nanobanana Image"
+  short_description: "使用 Gemini 图像模型生成、编辑或组合图片并保存本地结果"
+  default_prompt: "Use $nanobanana-skill to generate or edit an image with Gemini and save the result locally."

@@ -4,6 +4,7 @@
 import argparse
 import json
 import os
+import sys
 import uuid
 from io import BytesIO
 from pathlib import Path
@@ -12,20 +13,6 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from PIL import Image
-
-# Load environment variables
-load_dotenv(os.path.expanduser("~") + "/.nanobanana.env")
-
-# Google API configuration from environment variables
-api_key = os.getenv("GEMINI_API_KEY") or ""
-
-if not api_key:
-    raise ValueError(
-        "Missing GEMINI_API_KEY environment variable. Please check your .env file."
-    )
-
-# Initialize Gemini client
-client = genai.Client(api_key=api_key)
 
 ASPECT_RATIO_MAP = {
     "1024x1024": "1:1",
@@ -66,7 +53,18 @@ SUPPORTED_MODELS = [
 SUPPORTED_RESOLUTIONS = ["512px", "1K", "2K", "4K"]
 
 
-def parse_args():
+def get_client():
+    """Initialize the Gemini client after CLI arguments have been parsed."""
+    load_dotenv(Path.home() / ".nanobanana.env")
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "GEMINI_API_KEY is required. Set it in ~/.nanobanana.env or export it."
+        )
+    return genai.Client(api_key=api_key)
+
+
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         description="Generate or edit images using Google Gemini API"
     )
@@ -151,7 +149,7 @@ def parse_args():
         default=None,
         help="Optional path to save structured metadata about the run.",
     )
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def resolve_aspect_ratio(args):
@@ -236,32 +234,45 @@ def save_image_parts(parts, output_path):
                 f"{output_path.stem}-{image_index}{output_path.suffix}"
             )
 
-        image = Image.open(BytesIO(part.inline_data.data))
-        image.save(target_path)
+        with Image.open(BytesIO(part.inline_data.data)) as image:
+            image.save(target_path)
         saved_paths.append(str(target_path))
 
     return saved_paths
 
 
-def main():
-    args = parse_args()
+def load_input_images(input_files):
+    """Validate and load input images without leaving file handles open."""
+    loaded_images = []
+    try:
+        for img_path in input_files or []:
+            path = Path(img_path).expanduser()
+            if not path.is_file():
+                raise FileNotFoundError(f"Input image not found: {path}")
+            with Image.open(path) as image:
+                loaded_images.append(image.copy())
+    except Exception:
+        for image in loaded_images:
+            image.close()
+        raise
+    return loaded_images
+
+
+def run(args, client=None):
+    """Execute one generation or editing request and return saved image paths."""
     aspect_ratio = resolve_aspect_ratio(args)
 
     if args.input_files and len(args.input_files) > 14:
         raise ValueError("Nanobanana supports at most 14 input reference images.")
 
     contents = []
+    input_images = load_input_images(args.input_files)
 
-    if args.input_files:
+    if input_images:
         print(f"Editing images with prompt: {args.prompt}")
         print(f"Input images: {args.input_files}")
         contents.append(args.prompt)
-
-        for img_path in args.input_files:
-            if not os.path.isfile(img_path):
-                raise FileNotFoundError(f"Input image not found: {img_path}")
-            image = Image.open(img_path)
-            contents.append(image)
+        contents.extend(input_images)
     else:
         print(f"Generating image with prompt: {args.prompt}")
         contents.append(args.prompt)
@@ -289,11 +300,16 @@ def main():
     if not args.disable_google_search:
         config_kwargs["tools"] = [types.Tool(google_search=types.GoogleSearch())]
 
-    response = client.models.generate_content(
-        model=args.model,
-        contents=contents,
-        config=types.GenerateContentConfig(**config_kwargs),
-    )
+    try:
+        active_client = client or get_client()
+        response = active_client.models.generate_content(
+            model=args.model,
+            contents=contents,
+            config=types.GenerateContentConfig(**config_kwargs),
+        )
+    finally:
+        for image in input_images:
+            image.close()
 
     if (
         response.candidates is None
@@ -342,15 +358,14 @@ def main():
     }
     save_metadata_output(args.metadata_output, metadata)
 
-    if saved_paths:
-        for saved_path in saved_paths:
-            print(f"\nImage saved to: {saved_path}")
-    else:
-        print(
-            "\nWarning: No image data found in the API response. "
-            "This usually means the model returned only text. "
-            "Please try again with a more explicit image-generation prompt."
+    if not saved_paths:
+        raise RuntimeError(
+            "No image data found in the API response. "
+            "Try again with a more explicit image-generation prompt."
         )
+
+    for saved_path in saved_paths:
+        print(f"\nImage saved to: {saved_path}")
 
     if args.text_output:
         print(f"Text output saved to: {Path(args.text_output).expanduser().resolve()}")
@@ -358,7 +373,18 @@ def main():
         print(
             f"Metadata output saved to: {Path(args.metadata_output).expanduser().resolve()}"
         )
+    return saved_paths
+
+
+def main(argv=None, client=None):
+    try:
+        args = parse_args(argv)
+        run(args, client=client)
+        return 0
+    except Exception as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

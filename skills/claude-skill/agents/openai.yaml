@@ -1,0 +1,4 @@
+interface:
+  display_name: "Claude Code CLI"
+  short_description: "通过 Claude Code CLI 执行无头任务、自动化和可恢复会话"
+  default_prompt: "Use $claude-skill to run this task through Claude Code CLI with the least-permissive suitable permissions."

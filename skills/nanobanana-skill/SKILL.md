@@ -28,6 +28,8 @@ Do not use it for:
 2. Python dependencies from `requirements.txt` must be installed.
 3. The executable is the `nanobanana.py` file in this same skill directory. Resolve its absolute path once before running it.
 
+The CLI can display `--help` without credentials. It validates local input files before creating an API client and exits non-zero when the API returns no image.
+
 Example env file:
 
 ```bash

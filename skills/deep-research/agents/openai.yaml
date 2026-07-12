@@ -1,0 +1,4 @@
+interface:
+  display_name: "深度调研"
+  short_description: "并行调度 Codex 子任务，聚合证据并产出可追溯的完整调研报告"
+  default_prompt: "Use $deep-research to split this research goal into traceable parallel tasks and synthesize a sourced final report."

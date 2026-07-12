@@ -1,12 +1,16 @@
 ---
 name: claude-skill
 description: Use when work should be delegated to Claude Code CLI, especially headless `claude -p` runs, automation scripts, CI jobs, resumable sessions, or requests to use Claude/Claude Code for a task.
-compatibility: Requires Claude Code CLI (`claude`) installed and authenticated on the target machine.
 ---
 
 # Claude Code Headless Mode
 
 Use this skill when the job should be executed through Claude Code itself, not solved inline. Focus on commands and workflows that match current stable Claude Code behavior.
+
+## Requirements
+
+- Install and authenticate the Claude Code CLI (`claude`) on the target machine.
+- Treat the installed CLI's `claude --help` output as the compatibility source of truth.
 
 ## Core Rules
 

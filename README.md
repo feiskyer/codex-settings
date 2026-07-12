@@ -154,6 +154,9 @@ codex --profile chatgpt
 ├── litellm_config.yaml         # GitHub Copilot/LiteLLM 示例
 ├── skills/                     # Codex Skills 及其脚本和参考资料
 ├── prompts/                    # 历史 Custom Prompts
+├── CONTRIBUTING.md             # 贡献流程和验证要求
+├── SECURITY.md                 # 安全问题报告策略
+├── COMPATIBILITY.md            # 兼容性和版本支持策略
 └── LICENSE                     # MIT License
 ```
 
@@ -294,6 +297,8 @@ codex mcp list
 ## 贡献
 
 欢迎通过 [Issues](https://github.com/feiskyer/codex-settings/issues) 和 [Pull Requests](https://github.com/feiskyer/codex-settings/pulls) 提交改进。
+
+完整流程见 [CONTRIBUTING.md](CONTRIBUTING.md)，安全问题请按 [SECURITY.md](SECURITY.md) 私下报告，版本与兼容性边界见 [COMPATIBILITY.md](COMPATIBILITY.md)。
 
 提交前请确认：
 

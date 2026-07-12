@@ -1,117 +1,79 @@
 ---
 name: youtube-transcribe-skill
-description: 'Extract subtitles/transcripts from a YouTube video URL and save as a local file. Use when you need to extract subtitles from a YouTube video.'
+description: Extract subtitles or transcripts from YouTube URLs and save normalized timestamped text locally. Use when the user asks for YouTube subtitles, captions, transcripts, video-to-text, 视频字幕, 字幕提取, YouTube 转文字, or 提取字幕.
 ---
 
 # YouTube Transcript Extraction
 
-Extract subtitles/transcripts from a YouTube video URL and save them as a local file.
+Use the bundled `scripts/transcribe_youtube.py` wrapper for the primary workflow. It downloads subtitles with `yt-dlp`, selects the preferred language, converts WebVTT cues into timestamped plain text, and reports the output path and line count.
 
-Input YouTube URL: $ARGUMENTS
+## Requirements
 
-## Step 1: Verify URL and Get Video Information
+1. Install `yt-dlp` and confirm `yt-dlp --version` succeeds.
+2. Resolve the absolute directory containing this `SKILL.md`; refer to it as `<skill-dir>`.
+3. Keep the output in the user's current working directory unless they request another location.
 
-1. **Verify URL Format**: Confirm the input is a valid YouTube URL (supports `youtube.com/watch?v=` or `youtu.be/` formats).
+The Python wrapper itself uses only the standard library. It can display `--help` without `yt-dlp` being installed.
 
-2. **Get Video Information**:
-   - If `yt-dlp` is available, prefer `yt-dlp --get-title "[VIDEO_URL]"`.
-   - If using browser automation, extract the title from the page (via snapshot or `document.title`) for file naming.
+## Primary workflow
 
-## Step 2: CLI Quick Extraction (Priority Attempt)
+Run without browser cookies first:
 
-Use command-line tools to quickly extract subtitles.
-
-1. **Check Tool Availability**:
-   Execute `which yt-dlp`.
-
-   - If `yt-dlp` is **found**, proceed to subtitle download.
-   - If `yt-dlp` is **NOT found**, skip immediately to **Step 3**.
-
-2. **Execute Subtitle Download** (Only if `yt-dlp` is found):
-
-   - **Tip**: Always add `--cookies-from-browser` to avoid sign-in restrictions. Default to `chrome`.
-   - **Retry Logic**: If `yt-dlp` fails with a browser error (e.g., "Could not open Chrome"), ask the user to specify their available browser (e.g., `firefox`, `safari`, `edge`) and retry.
-
-   ```bash
-   # Get the title first (try chrome first)
-   yt-dlp --cookies-from-browser=chrome --get-title "[VIDEO_URL]"
-
-   # Download subtitles
-   yt-dlp --cookies-from-browser=chrome --write-auto-sub --write-sub --sub-lang zh-Hans,zh-Hant,en --skip-download --output "<Video Title>.%(ext)s" "[VIDEO_URL]"
-   ```
-
-3. **Verify Results**:
-   - Check the command exit code.
-   - **Exit code 0 (Success)**: Subtitles have been saved locally, task complete.
-   - **Exit code non-0 (Failure)**:
-     - If error is related to browser/cookies, ask user for correct browser and retry Step 2.
-     - If other errors (e.g., video unavailable), proceed to **Step 3**.
-
-## Step 3: Browser Automation (Fallback)
-
-When the CLI method fails or `yt-dlp` is missing, use browser UI automation to extract subtitles.
-
-1. **Check Tool Availability**:
-
-   - Check if `chrome-devtools-mcp` tools (specifically `mcp__chrome__new_page`) are available.
-   - **CRITICAL CHECK**: If `chrome-devtools-mcp` is **NOT** available AND `yt-dlp` was **NOT** found in Step 2:
-     - **STOP** execution.
-     - **Notify the User**: "Unable to proceed. Please either install `yt-dlp` (for fast CLI extraction) OR configure `chrome-devtools-mcp` (for browser automation)."
-
-2. **Initialize Browser Session** (If tools are available):
-
-   Call `mcp__chrome__new_page` to open the video URL.
-
-### 3.2 Analyze Page State
-
-Call `mcp__chrome__take_snapshot` to read the page accessibility tree.
-
-### 3.3 Expand Video Description
-
-_Reason: The "Show transcript" button is usually hidden within the collapsed description area._
-
-1. Search the snapshot for a button labeled **"...more"**, **"...更多"**, or **"Show more"** (usually located in the description block below the video title).
-2. Call `mcp__chrome__click` to click that button.
-
-### 3.4 Open Transcript Panel
-
-1. Call `mcp__chrome__take_snapshot` to get the updated UI snapshot.
-2. Search for a button labeled **"Show transcript"**, **"显示转录稿"**, or **"内容转文字"**.
-3. Call `mcp__chrome__click` to click that button.
-
-### 3.5 Extract Content via DOM
-
-_Reason: Directly reading the accessibility tree for long lists is slow and consumes many tokens; DOM injection is more efficient._
-
-Call `mcp__chrome__evaluate_script` to execute the following JavaScript:
-
-```javascript
-() => {
-  // Select all transcript segment containers
-  const segments = document.querySelectorAll("ytd-transcript-segment-renderer");
-  if (!segments.length) return "BUFFERING"; // Retry if empty
-
-  // Iterate and format as "timestamp text"
-  return Array.from(segments)
-    .map((seg) => {
-      const time = seg.querySelector(".segment-timestamp")?.innerText.trim();
-      const text = seg.querySelector(".segment-text")?.innerText.trim();
-      return `${time} ${text}`;
-    })
-    .join("\n");
-};
+```bash
+python3 "<skill-dir>/scripts/transcribe_youtube.py" \
+  "<youtube-url>" \
+  --output-dir "$PWD"
 ```
 
-If it returns "BUFFERING", wait a few seconds and retry.
+The default language preference is Simplified Chinese, Traditional Chinese, other Chinese variants, then English. Override it when the user requests another language:
 
-### 3.6 Save and Cleanup
+```bash
+python3 "<skill-dir>/scripts/transcribe_youtube.py" \
+  "<youtube-url>" \
+  --languages "ja.*,en.*" \
+  --output-dir "$PWD"
+```
 
-1. Use the Write tool to save the extracted text as a local file (e.g., `<Video Title>.txt`).
-2. Call `mcp__chrome__close_page` to release resources.
+The wrapper supports normal watch URLs plus `youtu.be`, Shorts, live, and embed URLs. A successful run writes one `.txt` file whose non-empty lines use this shape:
 
-## Output Requirements
+```text
+00:03 Subtitle text
+00:08 Next subtitle text
+```
 
-- Save the subtitle file to the current working directory.
-- Filename format: `<Video Title>.txt`
-- File content format: Each line should be `Timestamp Subtitle Text`.
-- Report upon completion: File path, subtitle language, total number of lines.
+## Cookie retry
+
+Do not read browser cookies by default. If the initial command fails specifically because the video requires sign-in, age verification, membership, or another authenticated session:
+
+1. Explain that the retry will let `yt-dlp` read YouTube cookies from a local browser profile.
+2. Ask the user which browser profile they approve using.
+3. Retry only after approval:
+
+```bash
+python3 "<skill-dir>/scripts/transcribe_youtube.py" \
+  "<youtube-url>" \
+  --cookies-from-browser chrome \
+  --output-dir "$PWD"
+```
+
+Never print, copy, or persist browser cookies in the transcript or logs.
+
+## Browser fallback
+
+Use browser automation only when `yt-dlp` is unavailable or cannot obtain subtitles and an appropriate browser-control capability is available.
+
+1. Inspect the tools available in the current session; do not assume fixed MCP server or tool names.
+2. Open the video, reveal the transcript panel, and extract visible timestamp/text pairs.
+3. Save the result as `<sanitized-video-title>.txt` in the requested directory.
+4. Close pages or sessions opened solely for this task.
+
+If neither CLI extraction nor browser automation is available, report the missing capability instead of claiming success.
+
+## Completion report
+
+Return:
+
+1. Absolute transcript path
+2. Selected subtitle language
+3. Number of transcript lines
+4. Whether browser cookies or browser automation were used
