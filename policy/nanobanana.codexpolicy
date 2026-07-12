@@ -1,4 +1,0 @@
-prefix_rule(
-    pattern = ["~/.codex/skills/nanobanana-skill/nanobanana.py"],
-    decision = "allow",  # allow | prompt | forbidden
-)

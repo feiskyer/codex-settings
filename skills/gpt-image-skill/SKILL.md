@@ -15,7 +15,7 @@ Before running any command, resolve the absolute directory containing this `SKIL
 
 1. **OPENAI_API_KEY**: Must be configured in `~/.gpt-image.env` or `export OPENAI_API_KEY=<your-key>`
 2. **OPENAI_API_BASE** (optional): Custom API base URL for compatible endpoints (e.g. Azure OpenAI, proxies). Set in `~/.gpt-image.env` or export it.
-3. **Python3 with dependencies**: openai, Pillow. Install via `python3 -m pip install -r "<skill-dir>/requirements.txt"` if not installed yet.
+3. **Python3 with dependencies**: openai, httpx, python-dotenv. Install via `python3 -m pip install -r "<skill-dir>/requirements.txt"` if not installed yet.
 4. **Executable**: `<skill-dir>/gpt_image.py`
 
 ## Instructions
@@ -41,7 +41,7 @@ Before running any command, resolve the absolute directory containing this `SKIL
 ### For image editing
 
 1. Ask the user for:
-   - Input image file(s) to edit (up to 3)
+   - Input image file(s) to edit
    - What changes they want (the prompt)
    - Output filename (optional)
 
@@ -50,6 +50,8 @@ Before running any command, resolve the absolute directory containing this `SKIL
    ```bash
    python3 "<skill-dir>/gpt_image.py" edit --prompt "editing instructions" --input image1.png image2.png --output "edited.png"
    ```
+
+   Parent directories in the output path are created automatically. When `--format` is omitted, the script infers it from `.png`, `.jpg`/`.jpeg`, or `.webp`; otherwise it defaults to PNG.
 
 ## Available Options
 

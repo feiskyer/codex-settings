@@ -10,18 +10,13 @@ approval_policy = "never"
 sandbox_mode = "danger-full-access"
 model_context_window = 1000000
 model_auto_compact_token_limit = 900000
-suppress_unstable_features_warning = true
 
 [features]
 apps = true
-collaboration_modes = true
 multi_agent = true
-remote_connections = true
 personality = true
 shell_snapshot = true
-steer = true
 unified_exec = true
-voice_transcription = true
 guardian_approval = true
 prevent_idle_sleep = true
 memories = true

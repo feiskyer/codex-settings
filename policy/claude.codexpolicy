@@ -1,5 +1,0 @@
-prefix_rule(
-    pattern = ["claude"],
-    decision = "allow",
-    match = [["claude", "-p", "prompt"]],
-)

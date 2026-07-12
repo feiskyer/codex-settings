@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-这是一个面向 [OpenAI Codex CLI](https://developers.openai.com/codex/cli/) 的个人配置仓库，包含常用配置、Skills、MCP 示例和命令规则。
+这是一个面向 [OpenAI Codex CLI](https://developers.openai.com/codex/cli/) 的个人配置仓库，包含常用配置、Skills 和 MCP 示例。
 
 仓库里的配置主要服务于作者自己的开发环境，但也可以按需选取。使用前请先看清楚模型提供商、权限和外部依赖，不要直接把真实密钥提交到仓库。
 
@@ -10,7 +10,7 @@
 
 - Codex 主配置和多个模型提供商示例。
 - 一组可直接安装的 Skills，覆盖需求梳理、深度调研、图像生成、字幕提取和任务交接等场景。
-- LiteLLM、MCP 和命令规则示例。
+- LiteLLM 和 MCP 示例。
 - 两个历史 Custom Prompts，保留作为迁移到 Skills 的参考。
 
 相关项目：[Claude Code Settings](https://github.com/feiskyer/claude-code-settings)
@@ -154,7 +154,6 @@ codex --profile chatgpt
 ├── litellm_config.yaml         # GitHub Copilot/LiteLLM 示例
 ├── skills/                     # Codex Skills 及其脚本和参考资料
 ├── prompts/                    # 历史 Custom Prompts
-├── policy/                     # 旧格式的命令规则示例
 └── LICENSE                     # MIT License
 ```
 
@@ -260,18 +259,9 @@ python -m pip install -r ~/.codex/skills/nanobanana-skill/requirements.txt
 
 API Key 应保存在本地环境变量或 Skill 指定的私有环境文件中，不要写进仓库。
 
-## 历史 Prompts 和规则文件
+## 历史 Prompts
 
 `prompts/` 中保留了两个旧版 Custom Prompts。Codex 已不再推荐这种方式，新工作流应优先写成 Skill。
-
-`policy/` 中的 `.codexpolicy` 文件也采用旧命名。当前 Codex 从 `~/.codex/rules/*.rules` 或受信任项目中的 `.codex/rules/*.rules` 加载规则。迁移前请逐行检查内容，再把需要的文件复制并改为 `.rules` 后缀。
-
-```bash
-mkdir -p ~/.codex/rules
-cp ~/.codex/policy/default.codexpolicy ~/.codex/rules/default.rules
-```
-
-规则只能控制命令审批，不能替代沙箱或操作系统权限隔离。
 
 ## 开发和检查
 
@@ -320,7 +310,6 @@ codex mcp list
 - [Codex 配置说明](https://developers.openai.com/codex/config-basic)
 - [Codex 配置参考](https://developers.openai.com/codex/config-reference)
 - [Codex Skills](https://developers.openai.com/codex/skills)
-- [Codex Rules](https://developers.openai.com/codex/rules)
 - [Codex GitHub 仓库](https://github.com/openai/codex)
 - [LiteLLM 文档](https://docs.litellm.ai/)
 
