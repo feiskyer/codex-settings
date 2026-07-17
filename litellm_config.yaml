@@ -56,3 +56,42 @@ model_list:
     extra_headers:
       editor-version: "vscode/1.95.0"
       editor-plugin-version: "copilot-chat/0.26.7"
+
+# Kimi / Moonshot（截至 2026-07-17 的最新旗舰模型：Kimi K3）。设置 MOONSHOT_API_KEY 后取消注释；中国区 API 可增加 api_base: https://api.moonshot.cn/v1。
+# - model_name: kimi-k3
+#   model_info:
+#     mode: responses
+#     supports_vision: true
+#   litellm_params:
+#     model: moonshot/kimi-k3
+#     api_key: os.environ/MOONSHOT_API_KEY
+#     drop_params: true
+
+# MiniMax（截至 2026-07-17 的最新旗舰模型：MiniMax-M3）。设置 MINIMAX_API_KEY 后取消注释。
+# - model_name: MiniMax-M3
+#   model_info:
+#     mode: responses
+#     supports_vision: true
+#   litellm_params:
+#     model: minimax/MiniMax-M3
+#     api_key: os.environ/MINIMAX_API_KEY
+#     api_base: https://api.minimaxi.com/v1
+#     drop_params: true
+
+# DeepSeek（截至 2026-07-17 的最新旗舰模型：DeepSeek-V4-Pro）。设置 DEEPSEEK_API_KEY 后取消注释。
+# - model_name: deepseek-v4-pro
+#   model_info:
+#     mode: responses
+#   litellm_params:
+#     model: deepseek/deepseek-v4-pro
+#     api_key: os.environ/DEEPSEEK_API_KEY
+#     drop_params: true
+
+# Z.AI / 智谱（截至 2026-07-17 的最新旗舰模型：GLM-5.2）。设置 ZAI_API_KEY 后取消注释。
+# - model_name: glm-5.2
+#   model_info:
+#     mode: responses
+#   litellm_params:
+#     model: zai/glm-5.2
+#     api_key: os.environ/ZAI_API_KEY
+#     drop_params: true

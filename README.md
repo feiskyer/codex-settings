@@ -2,20 +2,22 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-这是一个面向 [OpenAI Codex CLI](https://developers.openai.com/codex/cli/) 的个人配置仓库，包含常用配置、Skills 和 MCP 示例。
+一套开箱即用的 [Codex CLI](https://developers.openai.com/codex/cli/) 工作台，集成多模型 Profiles、可复用 Skills 与 [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp)。
 
-仓库里的配置主要服务于作者自己的开发环境，但也可以按需选取。使用前请先看清楚模型提供商、权限和外部依赖，不要直接把真实密钥提交到仓库。
+仓库采用面向个人开发效率的默认配置；你可以整套使用，也可以按需选取 Profiles 或 Skills。使用前请确认模型提供商、权限和外部依赖，并避免提交真实密钥。
 
-## 仓库包含什么
+## 为什么用这套配置
 
-- Codex 主配置和多个模型提供商示例。
-- 一组可直接安装的 Skills，覆盖需求梳理、深度调研、图像生成、字幕提取和任务交接等场景。
-- LiteLLM 和 MCP 示例。
-- 两个历史 Custom Prompts，保留作为迁移到 Skills 的参考。
+如果你想少花时间调配置，多花时间完成真正的开发工作，这个仓库提供了一套可以直接运行、也可以自由组合的 Codex CLI 工作台。
 
-相关项目：[Claude Code Settings](https://github.com/feiskyer/claude-code-settings)
+- **灵活切换模型**：预置 [copilot-gateway](https://www.npmjs.com/package/copilot-gateway)、ChatGPT、Azure OpenAI、OpenRouter 和 [LiteLLM](https://docs.litellm.ai/)/GitHub Copilot Profiles。
+- **复用成熟工作流**：通过 Skills 完成需求梳理、深度调研、图像生成、字幕提取和任务交接。
+- **连接真实开发环境**：通过 Chrome DevTools MCP 调试网页、检查性能并执行浏览器自动化。
+- **整套或按需使用**：既可以作为完整的 Codex Home，也可以只复制需要的 Profile 或 Skill。
 
-## 安装
+> 本项目面向 Codex CLI；Claude Code 的配置、Skills 与 Agents 请查看 [Claude Code Settings](https://github.com/feiskyer/claude-code-settings)。
+
+## 快速开始
 
 ### 1. 安装 Codex CLI
 
@@ -145,6 +147,84 @@ codex --profile chatgpt
 
 </details>
 
+## 常见问题
+
+### 1. Codex CLI 应该如何安装？
+
+优先按照 [Codex CLI 官方文档](https://developers.openai.com/codex/cli/) 选择当前平台支持的安装方式；也可以使用 `npm install -g @openai/codex`。本仓库不提供 Codex 或 Windows 安装包。安装后运行 `codex --version` 和 `codex doctor --summary` 检查是否完整，不要把 ChatGPT 应用和 Codex CLI 当成同一个安装包。
+
+### 2. 为什么 Codex 会连接 `localhost:4141`？需要执行 `codex login` 吗？
+
+本仓库默认使用 [copilot-gateway](https://www.npmjs.com/package/copilot-gateway)，请求会发送到 `http://localhost:4141`，因此需要先运行：
+
+```bash
+npx copilot-gateway@latest start --proxy-env
+```
+
+该模式由网关处理上游认证，不需要执行 `codex login`，也不是 OpenAI 官方的 GitHub Copilot 登录方式。
+
+### 3. ChatGPT 登录、API Key 和第三方 Provider 有什么区别？
+
+`codex login` 使用 ChatGPT 登录，并消耗 ChatGPT 工作区或订阅提供的 Codex 用量；API Key 使用 OpenAI Platform 的独立 API 计费。第三方 Provider 使用自己的端点、凭据和计费规则，不会自动继承 ChatGPT 订阅或 OpenAI API 权限。本仓库默认 `copilot-gateway` 的上游认证由网关负责。
+
+### 4. 如何切换 Profile 或模型？
+
+使用 `--profile` 切换仓库提供的模型配置，使用 `--model` 临时指定模型：
+
+```bash
+codex --profile chatgpt
+codex --profile azure
+codex --profile openrouter
+codex --model <MODEL>
+```
+
+模型必须被当前 Provider、部署和账号权限支持；可用 `codex debug models` 查看 Codex 当前识别的模型。本仓库填写的默认模型不保证在所有 Provider 中都可用。
+
+### 5. Reconnecting、请求错误或一直思考怎么排查？
+
+先运行：
+
+```bash
+codex --version
+codex login status
+codex doctor --summary
+```
+
+默认配置还应确认 `copilot-gateway` 正在监听 `localhost:4141`；LiteLLM Profile 则检查 `localhost:4000`。如果只有 MCP 异常，再运行 `codex mcp list --json`。
+
+### 6. Skills 如何安装和调用？为什么没有显示？
+
+将仓库克隆到 `~/.codex` 时，仓库中的 Skills 会位于 `~/.codex/skills`；也可以按照前面的步骤单独复制。可通过 `/skills` 或 `$skill-name` 显式调用。未识别时，请检查 Skill 目录中是否包含有效的 `SKILL.md`，并确认当前 Codex 版本支持 Skills。
+
+### 7. Chrome DevTools MCP 会自动连接吗？
+
+默认配置会通过 `npx` 启动最新版 Chrome DevTools MCP，并请求自动连接本机 Chrome，但是否成功仍取决于 Chrome 和本机调试环境。可以运行：
+
+```bash
+codex mcp list --json
+codex mcp get chrome --json
+```
+
+所有 Profiles 都会继承基础配置中的 Chrome DevTools MCP。
+
+### 8. 为什么额度很快用完？ChatGPT 和 API Key 共用额度吗？
+
+ChatGPT 登录使用计划包含的 Codex 用量及可能购买的 ChatGPT credits；API Key 使用 OpenAI Platform 的独立 API 计费，两者不共用额度。消耗速度会受模型、推理强度、上下文长度和任务类型影响，本仓库不承诺固定可用时长。第三方 Provider 的额度和重置规则以对应服务为准。
+
+### 9. 可以切换到 Kimi、MiniMax、DeepSeek 或 GLM-5.2 吗？
+
+可以。本仓库在 [litellm_config.yaml](litellm_config.yaml) 末尾提供了默认注释的 Kimi K3、MiniMax-M3、DeepSeek-V4-Pro 和 GLM-5.2 配置示例。设置对应的 `MOONSHOT_API_KEY`、`MINIMAX_API_KEY`、`DEEPSEEK_API_KEY` 或 `ZAI_API_KEY`，取消所需模型段落的注释，启动 LiteLLM 后运行：
+
+```bash
+codex --profile github-copilot --model <MODEL>
+```
+
+这里继续复用 `github-copilot` Profile 指向的 `localhost:4000` LiteLLM 网关；Profile 名称不会限制实际使用的上游模型。LiteLLM 会把 Codex 的 Responses API 请求桥接到对应 Provider，但不同模型的工具调用、推理和多模态能力可能不同，启用后应先执行最小任务验证。
+
+### 10. 本仓库的默认权限是什么？
+
+默认配置使用 `approval_policy = "never"` 和 `sandbox_mode = "danger-full-access"`，这是本仓库有意采用的效率优先设置：Codex 可以不经命令批准、在无沙箱限制下执行操作。请只在信任的代码仓库和本机环境中使用；安装第三方 Provider、Skill 或 MCP 前，应检查其网络访问、凭据处理和数据政策。如需更严格的权限，可以参考后面的“默认配置”章节调整。
+
 ## 目录结构
 
 ```text
@@ -153,7 +233,6 @@ codex --profile chatgpt
 ├── *.config.toml               # 可叠加到主配置的模型提供商 Profiles
 ├── litellm_config.yaml         # GitHub Copilot/LiteLLM 示例
 ├── skills/                     # Codex Skills 及其脚本和参考资料
-├── prompts/                    # 历史 Custom Prompts
 ├── CONTRIBUTING.md             # 贡献流程和验证要求
 ├── SECURITY.md                 # 安全问题报告策略
 ├── COMPATIBILITY.md            # 兼容性和版本支持策略
@@ -193,7 +272,7 @@ network_access = false
 | [github-copilot.config.toml](github-copilot.config.toml) | 通过 LiteLLM 使用 GitHub Copilot | 先启动 `litellm_config.yaml`，再使用 `codex --profile github-copilot` |
 | [openrouter.config.toml](openrouter.config.toml) | OpenRouter | 设置 `OPENROUTER_API_KEY`，再使用 `codex --profile openrouter` |
 
-模型名称和功能开关会随 Codex 与上游服务更新。遇到无法识别的配置项时，可以运行：
+各 Profile 当前默认使用 `gpt-5.6-sol`，实际可用性取决于模型提供商和账号权限。如遇模型不可用，请替换为对应提供商支持的模型标识符。遇到无法识别的配置项时，可以运行：
 
 ```bash
 codex features list
@@ -223,9 +302,7 @@ litellm --config ~/.codex/litellm_config.yaml
 
 ### MCP
 
-默认配置会通过 `npx` 启动 Chrome DevTools MCP；部分备用配置还引用 Context7 或 Claude Code MCP。启用前请确认相关命令已经安装，并检查它们可以访问哪些文件和网络资源。
-
-团队环境中建议固定 npm 包版本，不要长期依赖 `@latest`。
+默认配置通过 `npx` 启动最新版 Chrome DevTools MCP，并自动连接本机 Chrome。所有 Profiles 共享该 MCP 配置。
 
 ## Skills（技能）
 
@@ -262,11 +339,16 @@ python -m pip install -r ~/.codex/skills/nanobanana-skill/requirements.txt
 
 API Key 应保存在本地环境变量或 Skill 指定的私有环境文件中，不要写进仓库。
 
-## 历史 Prompts
-
-`prompts/` 中保留了两个旧版 Custom Prompts。Codex 已不再推荐这种方式，新工作流应优先写成 Skill。
-
 ## 开发和检查
+
+在仓库根目录开发时，可以把当前 clone 目录临时设为 `CODEX_HOME`：
+
+```bash
+cd /path/to/codex-settings
+export CODEX_HOME="$(pwd)"
+```
+
+该设置只对当前终端会话生效。此后根目录的 `config.toml`、`*.config.toml` 和 `skills/` 会作为当前 Codex Home 使用。
 
 修改配置或 Skill 后，建议运行：
 

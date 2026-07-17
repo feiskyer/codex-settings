@@ -29,6 +29,7 @@ logs_*.sqlite*
 goals_*.sqlite*
 memories_*.sqlite*
 log/
+memories/
 app-server-daemon/
 vendor_imports/
 skills/.system/
