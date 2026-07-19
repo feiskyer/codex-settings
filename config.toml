@@ -41,3 +41,9 @@ startup_timeout_sec = 60
 
 [tui]
 status_line = ["model-with-reasoning", "context-remaining", "current-dir", "model-name", "git-branch", "context-used", "context-window-size", "used-tokens", "total-output-tokens", "five-hour-limit", "weekly-limit"]
+
+[tui.model_availability_nux]
+"gpt-5.6-sol" = 2
+
+[projects."/Users/fei/codex-settings"]
+trust_level = "trusted"

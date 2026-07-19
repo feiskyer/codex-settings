@@ -1,0 +1,156 @@
+# Require approval for direct rm invocations, regardless of option spelling or
+# target path. A single-command prefix matches variants such as `rm -rf`,
+# `rm -fr`, `rm -R`, and `rm --recursive --force`.
+prefix_rule(
+    pattern = [
+        [
+            "rm",
+            "grm",
+            "/bin/rm",
+            "/usr/bin/rm",
+            "/usr/local/bin/rm",
+            "/opt/homebrew/bin/rm",
+        ],
+    ],
+    decision = "prompt",
+    justification = "Review the exact paths and flags before allowing file deletion.",
+    match = [
+        "rm file.txt",
+        "rm -f file.txt",
+        "rm -rf directory",
+        "rm -fr directory",
+        "rm -R directory",
+        "rm --recursive --force directory",
+        "rm --one-file-system -rf directory",
+        "rm -- /tmp/example",
+        "/bin/rm -rf /tmp/example",
+        "/usr/bin/rm --recursive /tmp/example",
+        "/usr/local/bin/rm -f /tmp/example",
+        "/opt/homebrew/bin/rm -rf /tmp/example",
+        "grm -rf /tmp/example",
+    ],
+    not_match = [
+        "echo rm -rf /tmp/example",
+        "rmdir /tmp/example",
+    ],
+)
+
+# Cover common command launchers that can invoke rm directly. Shell wrappers
+# containing a simple command chain are normally split by Codex and matched by
+# the direct rule above; these rules cover explicit launcher argv forms too.
+prefix_rule(
+    pattern = ["command", ["rm", "grm", "/bin/rm", "/usr/bin/rm"]],
+    decision = "prompt",
+    justification = "Review rm invoked through the command builtin before allowing deletion.",
+    match = [
+        "command rm -rf directory",
+        "command /bin/rm -f file.txt",
+    ],
+)
+
+prefix_rule(
+    pattern = [["env", "/usr/bin/env"], ["rm", "grm", "/bin/rm", "/usr/bin/rm"]],
+    decision = "prompt",
+    justification = "Review rm invoked through env before allowing deletion.",
+    match = [
+        "env rm -rf directory",
+        "/usr/bin/env /bin/rm -f file.txt",
+    ],
+)
+
+prefix_rule(
+    pattern = [["sudo", "/usr/bin/sudo"], ["rm", "grm", "/bin/rm", "/usr/bin/rm"]],
+    decision = "prompt",
+    justification = "Review privileged rm operations before allowing deletion.",
+    match = [
+        "sudo rm -rf directory",
+        "/usr/bin/sudo /bin/rm -f file.txt",
+    ],
+)
+
+prefix_rule(
+    pattern = [["doas", "/usr/bin/doas", "/usr/local/bin/doas"], ["rm", "grm", "/bin/rm", "/usr/bin/rm"]],
+    decision = "prompt",
+    justification = "Review privileged rm operations before allowing deletion.",
+    match = [
+        "doas rm -rf directory",
+        "/usr/local/bin/doas /bin/rm -f file.txt",
+    ],
+)
+
+prefix_rule(
+    pattern = [["nohup", "/usr/bin/nohup"], ["rm", "grm", "/bin/rm", "/usr/bin/rm"]],
+    decision = "prompt",
+    justification = "Review detached rm operations before allowing deletion.",
+    match = [
+        "nohup rm -rf directory",
+        "/usr/bin/nohup /bin/rm -f file.txt",
+    ],
+)
+
+prefix_rule(
+    pattern = [["xargs", "/usr/bin/xargs"], ["rm", "grm", "/bin/rm", "/usr/bin/rm"]],
+    decision = "prompt",
+    justification = "Review batched rm operations before allowing deletion.",
+    match = [
+        "xargs rm -rf",
+        "/usr/bin/xargs /bin/rm -f",
+    ],
+)
+
+# BusyBox and Toybox expose rm as a subcommand rather than a standalone binary.
+prefix_rule(
+    pattern = [["busybox", "/bin/busybox", "/usr/bin/busybox"], "rm"],
+    decision = "prompt",
+    justification = "Review BusyBox rm operations before allowing deletion.",
+    match = [
+        "busybox rm -rf directory",
+        "/bin/busybox rm -f file.txt",
+    ],
+)
+
+prefix_rule(
+    pattern = [["toybox", "/bin/toybox", "/usr/bin/toybox"], "rm"],
+    decision = "prompt",
+    justification = "Review Toybox rm operations before allowing deletion.",
+    match = [
+        "toybox rm -rf directory",
+        "/usr/bin/toybox rm -f file.txt",
+    ],
+)
+
+# Codex splits simple bash/sh/zsh command chains and evaluates each inner
+# command separately. Scripts containing assignments, variable expansion,
+# substitutions, redirects, globs, or control flow cannot always be split
+# safely. Prompt on those shell-wrapper forms so a dynamically constructed rm
+# cannot bypass the direct rules above. This intentionally also prompts for
+# other complex, unparseable shell scripts.
+prefix_rule(
+    pattern = [
+        [
+            "bash",
+            "sh",
+            "zsh",
+            "/bin/bash",
+            "/bin/sh",
+            "/bin/zsh",
+            "/usr/bin/bash",
+            "/usr/bin/sh",
+            "/usr/bin/zsh",
+            "/opt/homebrew/bin/bash",
+            "/opt/homebrew/bin/zsh",
+        ],
+        ["-c", "-lc"],
+    ],
+    decision = "prompt",
+    justification = "Review complex shell scripts that may construct or hide a deletion command.",
+    match = [
+        "bash -c 'HOME=/tmp/example; rm -rf \"$HOME\"'",
+        "sh -lc 'target=/tmp/example; rm -rf \"$target\"'",
+        "zsh -lc 'rm -rf \"$(get-target)\"'",
+        "/bin/bash -lc 'rm -rf /tmp/example'",
+        "/bin/sh -c 'rm -rf /tmp/example'",
+        "/bin/zsh -lc 'rm -rf /tmp/example'",
+        "/opt/homebrew/bin/zsh -lc 'rm -rf /tmp/example'",
+    ],
+)
