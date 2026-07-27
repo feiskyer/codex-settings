@@ -5,7 +5,9 @@
 - `config.toml` is the shared Codex CLI configuration and points to the local `copilot-gateway` provider at `localhost:4141`.
 - Root-level `*.config.toml` files are optional Codex Profiles (`chatgpt`, `azure`, `github-copilot`, and `openrouter`). Keep the `<name>.config.toml` naming required by `codex --profile <name>`.
 - `skills/<name>/SKILL.md` contains reusable workflows. Put deterministic helpers in `scripts/`, detailed references in `references/`, UI metadata in `agents/openai.yaml`, and offline regression tests in `tests/`.
-- `prompts/` contains historical Custom Prompts retained for migration reference. Do not add new workflows there; use a Skill instead.
+- `.codex-plugin/plugin.json` packages the existing root `skills/` tree as the `codex-settings` Plugin without duplicating it.
+- `.agents/plugins/marketplace.json` exposes the repository root as the Plugin source.
+- `skills/github-fix-issue/` and `skills/github-review-pr/` replace the former GitHub Custom Prompts. Do not recreate duplicate workflows under `prompts/`.
 - `litellm_config.yaml` is only for the optional GitHub Copilot through LiteLLM profile. It is not the backend used by the default `config.toml`.
 
 ## Validation Commands
@@ -15,6 +17,11 @@ Run checks that match the files you changed. The standard offline suite is:
 ```bash
 # TOML syntax
 python3 -c 'import pathlib, tomllib; [tomllib.loads(p.read_text()) for p in pathlib.Path(".").glob("**/*.toml")]'
+
+# Plugin package and marketplace
+python3 -m json.tool .codex-plugin/plugin.json >/dev/null
+python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
+python3 ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
 
 # Skill structure
 for skill in skills/*; do
@@ -31,7 +38,8 @@ done
 
 # Bundled shell and JavaScript helpers
 bash -n skills/brainstorming/scripts/start-server.sh \
-  skills/brainstorming/scripts/stop-server.sh
+  skills/brainstorming/scripts/stop-server.sh \
+  scripts/test-plugin-install.sh
 node --check skills/brainstorming/scripts/server.cjs
 node --check skills/brainstorming/scripts/helper.js
 ```
@@ -42,6 +50,7 @@ Run provider integration checks only when the related provider files change:
 - Default gateway: start `copilot-gateway`, then run `codex` or `codex doctor --summary`.
 - LiteLLM profile: start `litellm --config ~/.codex/litellm_config.yaml`, then run `codex --profile github-copilot`.
 - ChatGPT profile: authenticate with `codex login`, then run `codex --profile chatgpt`.
+- Codex Plugin: when the marketplace, Plugin manifest, Skills, or Plugin test script changes, run `scripts/test-plugin-install.sh` with the installed stable Codex CLI.
 - External API Skills: prefer mocked/offline tests. Use real credentials only for an explicitly requested integration test.
 
 ## Style and Skill Conventions
@@ -51,6 +60,8 @@ Run provider integration checks only when the related provider files change:
 - Skill frontmatter contains only `name` and `description`. Put requirements and compatibility notes in the body.
 - Write Skill instructions in imperative form. Keep the core workflow concise and move repeatable or fragile behavior into bundled scripts.
 - Add or refresh `agents/openai.yaml` when a Skill is created or materially renamed. Its `default_prompt` must mention `$skill-name`.
+- Bump `.codex-plugin/plugin.json` `version` whenever released Plugin content changes. Use semantic versions for releases and a single `+codex.<cachebuster>` suffix only for local iteration.
+- Keep default installation documentation unpinned so it follows the repository default branch. Use matching immutable `v<version>` tags as release checkpoints, not as the default install ref.
 - Scripts must expose `--help`, validate local inputs before network/API calls, return non-zero on failure, and create output parent directories when appropriate.
 - Tests must not require paid API calls, browser cookies, interactive approval, or live third-party services unless the user explicitly requests an integration run.
 

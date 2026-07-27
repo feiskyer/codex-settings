@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review GitHub Pull Request"
+  short_description: "Review GitHub PRs with evidence-backed analysis"
+  default_prompt: "Use $github-review-pr to review this pull request and report findings locally without publishing."

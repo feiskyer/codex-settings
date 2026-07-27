@@ -33,7 +33,56 @@ npm install -g @openai/codex
 
 也可以参考 [Codex CLI 官方文档](https://developers.openai.com/codex/cli/) 选择其他安装方式。
 
-### 2. 首次安装：直接克隆到 `~/.codex`
+### 2. 推荐：使用 Codex Plugin 安装 Skills
+
+如果你已经有自己的 Codex 配置，只想安装本仓库提供的 Skills，可以把仓库作为 Plugin Marketplace 添加：
+
+```bash
+codex plugin marketplace add feiskyer/codex-settings
+codex plugin list --marketplace codex-settings --available --json
+codex plugin add codex-settings@codex-settings
+```
+
+安装完成后启动一个新的 Codex 会话，让 Codex 重新发现 Plugin 中的 Skills。未指定 `--ref` 时，Marketplace 使用仓库默认分支，因此首次安装会获取当时的最新版本。当前发布版本为 Plugin `1.1.0` / Git `v1.1.0`。
+
+仓库发布新版并更新 Plugin 版本后，刷新 Marketplace 快照并重新安装：
+
+```bash
+codex plugin marketplace upgrade codex-settings
+codex plugin add codex-settings@codex-settings
+```
+
+需要卸载时运行：
+
+```bash
+codex plugin remove codex-settings@codex-settings
+codex plugin marketplace remove codex-settings
+```
+
+也可以从本地干净 clone 测试或开发 Plugin：
+
+```bash
+git clone https://github.com/feiskyer/codex-settings.git ~/codex-settings
+codex plugin marketplace add ~/codex-settings
+codex plugin add codex-settings@codex-settings
+```
+
+Plugin 直接复用根目录 `skills/`，不会生成第二份 Skills。安装后只会把这些 Skills 作为工作流提供给 Codex，不会应用或替换你的 `config.toml`，也不会启用本仓库的 Profiles、模型 Provider、LiteLLM 配置或根目录 MCP 设置。如果需要完整配置，请使用下一节的 Codex Home 安装方式。
+
+<details>
+<summary><strong>备选：使用 npx skills 安装（版本可能滞后）</strong></summary>
+
+也可以使用第三方 `skills` CLI 从仓库安装 Skills：
+
+```bash
+npx skills add feiskyer/codex-settings
+```
+
+按照交互提示选择 Codex 和安装范围。当前 `npx skills add` 没有提供 Git tag/ref 选择参数，其索引、缓存或发布快照也可能滞后，因此不能保证与仓库默认分支的最新内容同步；需要优先获取仓库最新 Plugin 快照时，使用上面的 Codex Plugin 安装方式。
+
+</details>
+
+### 3. 完整安装：直接克隆到 `~/.codex`
 
 如果本机还没有 `~/.codex`，最简单的方式是直接把仓库克隆到 Codex 的用户配置目录：
 
@@ -80,7 +129,7 @@ cp -R ~/codex-settings/skills/. ~/.codex/skills/
 
 </details>
 
-### 3. 选择认证方式
+### 4. 选择认证方式
 
 下面三种方式任选其一。仓库默认使用 `copilot-gateway`，因为根目录的 `config.toml` 已经按该方式配置。
 
@@ -226,6 +275,8 @@ litellm --config ~/.codex/litellm_config.yaml
 | [gpt-image-skill](skills/gpt-image-skill/) | 使用 OpenAI Image API 生成或编辑图片 | 需要 Python、`OPENAI_API_KEY` 和对应依赖 |
 | [grill-me](skills/grill-me/) | 逐项追问方案，并维护术语表和 ADR | 会在项目中写入设计与决策文档 |
 | [handoff](skills/handoff/) | 把当前会话整理成下一位 Agent 可直接接手的交接文档 | 交接文件写入系统临时目录 |
+| [github-fix-issue](skills/github-fix-issue/) | 分析并修复 GitHub Issue，可按明确授权提交分支和 PR | 需要已登录的 `gh` CLI；默认不 push 或创建 PR |
+| [github-review-pr](skills/github-review-pr/) | 对 GitHub PR 做多角度、证据驱动的代码审查 | 需要已登录的 `gh` CLI；默认只报告，不发布评论或批准 |
 | [nanobanana-skill](skills/nanobanana-skill/) | 使用 Gemini 图像模型生成或编辑图片 | 需要 Python、`GEMINI_API_KEY` 和对应依赖 |
 | [youtube-transcribe-skill](skills/youtube-transcribe-skill/) | 提取 YouTube 字幕或转录文本 | 需要 `yt-dlp`，或使用 Chrome DevTools MCP 作为备用方案 |
 
@@ -233,6 +284,8 @@ litellm --config ~/.codex/litellm_config.yaml
 
 ```text
 $brainstorming 帮我把这个产品想法整理成可执行的设计
+$github-fix-issue 修复当前仓库的 issue #123，但先不要 push
+$github-review-pr 审查 PR #456，只把结果报告给我
 $grill-me 逐项挑战一下这份技术方案
 $handoff 把当前进度整理成交接文档
 $gpt-image-skill 生成一张产品发布海报
@@ -268,6 +321,12 @@ export CODEX_HOME="$(pwd)"
 # 检查 TOML 语法
 python3 -c 'import pathlib, tomllib; [tomllib.loads(p.read_text()) for p in pathlib.Path(".").glob("**/*.toml")]'
 
+# 检查 Codex Plugin 包
+python3 -m json.tool .codex-plugin/plugin.json >/dev/null
+python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
+python3 ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+bash scripts/test-plugin-install.sh
+
 # 检查 Codex 配置、认证、MCP 和网络状态
 codex doctor --summary
 
@@ -279,6 +338,8 @@ codex mcp list
 ```
 
 新增或修改脚本时，还要检查 `--help`、最小可用示例和常见失败路径。测试外部 API 时使用最小权限凭据，并清理日志中的敏感信息。
+
+发布新的 Plugin 内容时，更新 `.codex-plugin/plugin.json` 的语义化版本，并创建匹配的 `v<version>` Git 标签；当前版本为 Plugin `1.1.0` / Git `v1.1.0`。本地反复安装同一版本时使用单一 `+codex.<cachebuster>` 后缀，避免命中旧缓存。
 
 ## 安全提醒
 

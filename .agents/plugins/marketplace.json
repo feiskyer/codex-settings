@@ -1,0 +1,20 @@
+{
+  "name": "codex-settings",
+  "interface": {
+    "displayName": "Codex Settings"
+  },
+  "plugins": [
+    {
+      "name": "codex-settings",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Engineering"
+    }
+  ]
+}

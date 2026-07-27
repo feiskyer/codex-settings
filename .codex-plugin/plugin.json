@@ -1,0 +1,33 @@
+{
+  "name": "codex-settings",
+  "version": "1.1.0",
+  "description": "Reusable Codex skills and workflows from feiskyer/codex-settings.",
+  "author": {
+    "name": "feiskyer",
+    "url": "https://github.com/feiskyer"
+  },
+  "homepage": "https://github.com/feiskyer/codex-settings",
+  "repository": "https://github.com/feiskyer/codex-settings",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "skills",
+    "developer-tools"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Codex Settings Skills",
+    "shortDescription": "Reusable Codex skills and workflows",
+    "longDescription": "Install the reusable skills from codex-settings without replacing your Codex configuration or model profiles.",
+    "developerName": "feiskyer",
+    "category": "Engineering",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use the best Codex Settings skill for this task."
+    ]
+  }
+}
