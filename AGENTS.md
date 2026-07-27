@@ -39,7 +39,10 @@ done
 # Bundled shell and JavaScript helpers
 bash -n skills/brainstorming/scripts/start-server.sh \
   skills/brainstorming/scripts/stop-server.sh \
-  scripts/test-plugin-install.sh
+  scripts/test-plugin-install.sh \
+  scripts/update-codex-plugins.sh \
+  scripts/test-update-codex-plugins.sh
+bash scripts/test-update-codex-plugins.sh
 node --check skills/brainstorming/scripts/server.cjs
 node --check skills/brainstorming/scripts/helper.js
 ```

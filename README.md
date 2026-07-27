@@ -52,6 +52,21 @@ codex plugin marketplace upgrade codex-settings
 codex plugin add codex-settings@codex-settings
 ```
 
+如果使用本仓库 clone，也可以运行更新脚本。它会刷新所有已配置的 Git Marketplace，同时在刷新前冻结当前已安装且启用的 Plugin 列表，随后只更新这份列表中的 Plugin；不会安装 Marketplace 中其他未安装的 Plugin：
+
+```bash
+# 更新所有已配置的 Git Marketplace 及其中已安装的 Plugin
+scripts/update-codex-plugins.sh
+
+# 只更新指定 Marketplace 中已安装的 Plugin
+scripts/update-codex-plugins.sh --marketplace codex-settings
+
+# 仅查看将要执行的命令
+scripts/update-codex-plugins.sh --dry-run
+```
+
+为避免改变启用状态，已安装但被禁用的 Plugin 会被跳过；本地或系统管理的 Marketplace 也不会由该脚本刷新。更新完成后请启动新的 Codex 会话。
+
 需要卸载时运行：
 
 ```bash
