@@ -67,15 +67,25 @@ model_list:
 #     api_key: os.environ/MOONSHOT_API_KEY
 #     drop_params: true
 
-# MiniMax（截至 2026-07-17 的最新旗舰模型：MiniMax-M3）。设置 MINIMAX_API_KEY 后取消注释。
+# MiniMax（截至 2026-07-22 的最新模型：MiniMax-M3 与 MiniMax-M2.7）。设置 MINIMAX_API_KEY 后取消注释。
+# 全球区 OpenAI 兼容端点：https://api.minimax.io/v1 ；中国区 OpenAI 兼容端点：https://api.minimaxi.com/v1。
 # - model_name: MiniMax-M3
 #   model_info:
 #     mode: responses
 #     supports_vision: true
+#     supports_video_input: true
 #   litellm_params:
 #     model: minimax/MiniMax-M3
 #     api_key: os.environ/MINIMAX_API_KEY
-#     api_base: https://api.minimaxi.com/v1
+#     api_base: https://api.minimax.io/v1
+#     drop_params: true
+# - model_name: MiniMax-M2.7
+#   model_info:
+#     mode: responses
+#   litellm_params:
+#     model: minimax/MiniMax-M2.7
+#     api_key: os.environ/MINIMAX_API_KEY
+#     api_base: https://api.minimax.io/v1
 #     drop_params: true
 
 # DeepSeek（截至 2026-07-17 的最新旗舰模型：DeepSeek-V4-Pro）。设置 DEEPSEEK_API_KEY 后取消注释。
