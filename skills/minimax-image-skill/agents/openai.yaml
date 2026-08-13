@@ -1,0 +1,4 @@
+interface:
+  display_name: "MiniMax Image"
+  short_description: "Generate images from text with the MiniMax Image API"
+  default_prompt: "Use $minimax-image-skill to generate an image with MiniMax and save it locally."
