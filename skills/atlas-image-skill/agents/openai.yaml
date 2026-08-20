@@ -1,0 +1,4 @@
+interface:
+  display_name: "Atlas Cloud Image"
+  short_description: "Generate images from text with the Atlas Cloud API"
+  default_prompt: "Use $atlas-image-skill to generate an image with Atlas Cloud and save it locally."
