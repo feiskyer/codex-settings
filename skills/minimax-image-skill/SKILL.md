@@ -1,6 +1,6 @@
 ---
 name: minimax-image-skill
-description: 'Generate images with the MiniMax Image API. Use when the user asks for MiniMax image generation, image-01, image-01-live, or an image from a text prompt through MiniMax.'
+description: Generate images through the MiniMax Image API. Use only when the user names MiniMax or a MiniMax image model such as `image-01` or `image-01-live`; for image requests with no provider named, use the default image skill instead.
 ---
 
 # MiniMax Image Skill
@@ -18,7 +18,7 @@ Resolve the absolute directory containing this `SKILL.md` before running a comma
 
 ## Generate an image
 
-Ask for the prompt and, when relevant, the model, region, aspect ratio, dimensions, result count, and output filename. Then run:
+Every option has a working default, so pass only what the request actually constrains:
 
 ```bash
 python3 "<skill-dir>/minimax_image.py" \

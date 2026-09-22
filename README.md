@@ -43,7 +43,7 @@ codex plugin list --marketplace codex-settings --available --json
 codex plugin add codex-settings@codex-settings
 ```
 
-安装完成后启动一个新的 Codex 会话，让 Codex 重新发现 Plugin 中的 Skills。未指定 `--ref` 时，Marketplace 使用仓库默认分支，因此首次安装会获取当时的最新版本。当前发布版本为 Plugin `1.1.0` / Git `v1.1.0`。
+安装完成后启动一个新的 Codex 会话，让 Codex 重新发现 Plugin 中的 Skills。未指定 `--ref` 时，Marketplace 使用仓库默认分支，因此首次安装会获取当时的最新版本。当前发布版本为 Plugin `1.3.0` / Git `v1.3.0`。
 
 仓库发布新版并更新 Plugin 版本后，刷新 Marketplace 快照并重新安装：
 
@@ -287,12 +287,13 @@ litellm --config ~/.codex/litellm_config.yaml
 | [brainstorming](skills/brainstorming/) | 实现前梳理需求、比较方案并形成设计文档 | 可视化伴侣需要 Node.js、浏览器和本机端口权限 |
 | [claude-skill](skills/claude-skill/) | 把任务交给 Claude Code CLI 执行 | 需要安装并登录 `claude` CLI |
 | [deep-research](skills/deep-research/) | 并行执行深度调研并汇总为完整报告 | 需要 Codex CLI；联网和 MCP 权限按任务配置 |
-| [gpt-image-skill](skills/gpt-image-skill/) | 使用 OpenAI Image API 生成或编辑图片 | 需要 Python、`OPENAI_API_KEY` 和对应依赖 |
+| [gpt-image-skill](skills/gpt-image-skill/) | 使用 OpenAI Image API 生成或编辑图片 | 需要 Python、`OPENAI_API_KEY` 和对应依赖；仅在点名 OpenAI/GPT Image 时触发 |
 | [grill-me](skills/grill-me/) | 逐项追问方案，并维护术语表和 ADR | 会在项目中写入设计与决策文档 |
+| [minimax-image-skill](skills/minimax-image-skill/) | 使用 MiniMax Image API 生成图片 | 需要 Python 3.9+ 和 `MINIMAX_API_KEY`；仅在点名 MiniMax 时触发 |
 | [handoff](skills/handoff/) | 把当前会话整理成下一位 Agent 可直接接手的交接文档 | 交接文件写入系统临时目录 |
 | [github-fix-issue](skills/github-fix-issue/) | 分析并修复 GitHub Issue，可按明确授权提交分支和 PR | 需要已登录的 `gh` CLI；默认不 push 或创建 PR |
 | [github-review-pr](skills/github-review-pr/) | 对 GitHub PR 做多角度、证据驱动的代码审查 | 需要已登录的 `gh` CLI；默认只报告，不发布评论或批准 |
-| [nanobanana-skill](skills/nanobanana-skill/) | 使用 Gemini 图像模型生成或编辑图片 | 需要 Python、`GEMINI_API_KEY` 和对应依赖 |
+| [nanobanana-skill](skills/nanobanana-skill/) | 使用 Gemini 图像模型生成或编辑图片；未点名厂商时的默认图像技能 | 需要 Python、`GEMINI_API_KEY` 和对应依赖 |
 | [youtube-transcribe-skill](skills/youtube-transcribe-skill/) | 提取 YouTube 字幕或转录文本 | 需要 `yt-dlp`，或使用 Chrome DevTools MCP 作为备用方案 |
 
 显式调用示例：
@@ -354,7 +355,7 @@ codex mcp list
 
 新增或修改脚本时，还要检查 `--help`、最小可用示例和常见失败路径。测试外部 API 时使用最小权限凭据，并清理日志中的敏感信息。
 
-发布新的 Plugin 内容时，更新 `.codex-plugin/plugin.json` 的语义化版本，并创建匹配的 `v<version>` Git 标签；当前版本为 Plugin `1.1.0` / Git `v1.1.0`。本地反复安装同一版本时使用单一 `+codex.<cachebuster>` 后缀，避免命中旧缓存。
+发布新的 Plugin 内容时，更新 `.codex-plugin/plugin.json` 的语义化版本，并创建匹配的 `v<version>` Git 标签；当前版本为 Plugin `1.3.0` / Git `v1.3.0`。本地反复安装同一版本时使用单一 `+codex.<cachebuster>` 后缀，避免命中旧缓存。
 
 ## 安全提醒
 

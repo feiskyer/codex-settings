@@ -10,9 +10,20 @@
 - `skills/github-fix-issue/` and `skills/github-review-pr/` replace the former GitHub Custom Prompts. Do not recreate duplicate workflows under `prompts/`.
 - `litellm_config.yaml` is only for the optional GitHub Copilot through LiteLLM profile. It is not the backend used by the default `config.toml`.
 
+## Definition of Done
+
+A change in this repository is finished when all of these hold. Work through them without stopping for approval between steps:
+
+1. The change itself is complete, including every file it implies — a renamed or materially changed Skill also updates its `agents/openai.yaml`, and a new or removed Skill also updates the Skills table in `README.md`.
+2. The validation commands matching the changed files have been run and pass.
+3. `.codex-plugin/plugin.json` `version` is bumped if released Plugin content changed.
+4. The final report states which validation commands ran, which integration checks were skipped and why, and any assumption the change rests on.
+
+Stop early only for a genuine blocker: a missing credential, an ambiguous requirement where the readings lead to materially different work, or an action outside the scope described above.
+
 ## Validation Commands
 
-Run checks that match the files you changed. The standard offline suite is:
+The offline suite below is hermetic. It runs locally, touches no network or production system, and needs no credentials. It writes inside the working tree, plus disposable fixtures in a `mktemp -d` directory under `$TMPDIR` that the test removes on exit. Run the parts that match the files you changed, fix what breaks, and rerun the affected checks — without asking for approval at each step.
 
 ```bash
 # TOML syntax
@@ -61,7 +72,10 @@ Run provider integration checks only when the related provider files change:
 - TOML uses two-space indentation where indentation applies, aligned `=` signs within related blocks, double-quoted strings, and grouped tables.
 - Name Profiles, Skills, prompts, and scripts with lowercase kebab-case unless the platform requires another filename.
 - Skill frontmatter contains only `name` and `description`. Put requirements and compatibility notes in the body.
+- Keep each `description` as short as it can be while still making clear when the Skill applies. Describe the triggering situation, not a list of keywords, and do not treat the presence of an API key or a broad topic as a trigger. When several Skills cover the same territory, exactly one is the default and the others say they apply only when the user names that provider or tool.
 - Write Skill instructions in imperative form. Keep the core workflow concise and move repeatable or fragile behavior into bundled scripts.
+- Keep `SKILL.md` small enough to load cheaply. Move workflow detail, command references, and long examples into `references/` and have `SKILL.md` point at them per step, so a run only reads what that step needs. Do not restate a script's `--help` output; point at it.
+- Assume the reading model has judgment. Write down what it cannot infer — this repository's paths, invariants, and failure modes — and leave out step-by-step recipes for decisions it can make from the request. These Skills are installed by others and run on models this repository does not control, so over-specified procedure constrains more than it helps.
 - Add or refresh `agents/openai.yaml` when a Skill is created or materially renamed. Its `default_prompt` must mention `$skill-name`.
 - Bump `.codex-plugin/plugin.json` `version` whenever released Plugin content changes. Use semantic versions for releases and a single `+codex.<cachebuster>` suffix only for local iteration.
 - Keep default installation documentation unpinned so it follows the repository default branch. Use matching immutable `v<version>` tags as release checkpoints, not as the default install ref.

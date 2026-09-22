@@ -1,6 +1,6 @@
 ---
 name: github-fix-issue
-description: Analyze and fix GitHub issues in the current repository, including issue research, scoped implementation, and testing. Use when the user asks to fix, investigate, or work on a GitHub issue by number or URL. Create branches, commits, pushes, or pull requests only when the user explicitly requests those delivery actions.
+description: Research and fix a GitHub issue in the current repository. Use when the user asks to fix, investigate, or work on an issue by number or URL.
 ---
 
 # Fix GitHub Issue

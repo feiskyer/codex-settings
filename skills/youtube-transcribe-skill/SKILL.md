@@ -1,6 +1,6 @@
 ---
 name: youtube-transcribe-skill
-description: Extract subtitles or transcripts from YouTube URLs and save normalized timestamped text locally. Use when the user asks for YouTube subtitles, captions, transcripts, video-to-text, 视频字幕, 字幕提取, YouTube 转文字, or 提取字幕.
+description: Extract subtitles or a transcript from a YouTube URL and save normalized timestamped text locally. Use when the user wants the spoken content of a YouTube video as text.
 ---
 
 # YouTube Transcript Extraction

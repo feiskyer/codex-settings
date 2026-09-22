@@ -1,6 +1,6 @@
 ---
 name: deep-research
-description: '深度调研的多实例（多 Agent）编排工作流：把一个调研目标拆成可并行子目标，用 Codex CLI 子进程采集和分析证据，再聚合、核验并精修为完整报告。用于系统性网页或资料调研、竞品与行业分析、批量链接或数据集分片、长文证据整合，以及用户提及深度调研、Deep Research、Wide Research、多 Agent 并行调研或多进程调研的场景。'
+description: 把一个调研目标拆成可并行的子目标，用 Codex CLI 子进程分头取证，再聚合核验成一份带来源的报告。用于单轮检索撑不住、需要多个来源分头深挖的调研。
 ---
 
 # Deep Research
@@ -79,7 +79,7 @@ description: '深度调研的多实例（多 Agent）编排工作流：把一个
 
 ### 4. 预检和执行
 
-先预览命令，不启动 Codex 子进程：
+子任务数量多、单任务成本高，或 Prompt 是自动生成的，先用 `--dry-run` 预览命令而不启动子进程；只有一两个熟悉的子任务时可以直接执行：
 
 ```bash
 python3 "<skill-dir>/scripts/run_children.py" \
