@@ -134,6 +134,8 @@ version="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["vers
 cache_root="$codex_home/plugins/cache/codex-settings/codex-settings/$version"
 test -f "$cache_root/.codex-plugin/plugin.json"
 test -f "$cache_root/skills/brainstorming/SKILL.md"
+cmp "$repo_root/skills/code-simplifier/SKILL.md" "$cache_root/skills/code-simplifier/SKILL.md"
+cmp "$repo_root/skills/code-simplifier/agents/openai.yaml" "$cache_root/skills/code-simplifier/agents/openai.yaml"
 test -f "$cache_root/skills/github-fix-issue/SKILL.md"
 test -f "$cache_root/skills/github-fix-issue/agents/openai.yaml"
 test -f "$cache_root/skills/github-review-pr/SKILL.md"
