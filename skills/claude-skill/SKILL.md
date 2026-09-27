@@ -21,13 +21,9 @@ Requires the `claude` CLI installed and authenticated on the target machine.
 - **Prefer `--append-system-prompt` over `--system-prompt`** unless replacing Claude Code's default behavior is the point.
 - **Choose the least-permissive mode that still fits the task.** `acceptEdits` is the usual starting point for coding automation. For a truly unattended run, reach for explicit permission rules or `dontAsk` first; `bypassPermissions` is only for an already-isolated environment.
 
-## Verify before advising
+## Check what the task needs
 
-```bash
-claude --version
-claude auth status --text
-claude --help          # and `claude doctor` if the install looks off
-```
+Before execution, confirm the CLI is available and authenticated. Consult `claude --help` for flags needed by this command; use version or diagnostic commands when compatibility or installation is in doubt. A request for a command example does not authorize running that task.
 
 ## Basic shape
 
@@ -40,8 +36,10 @@ Everything else is a matter of scoping tools and permissions around that — see
 
 ## When to pause
 
-Only when one of these is materially unclear: the user needs a specific model or provider behavior that requires pinning; they asked for a fully unattended run in an environment that is not clearly sandboxed; or the workflow depends on a feature not visible in `claude --help`. Otherwise give the best current command.
+Pause for missing credentials, unavailable required capabilities, or a permission expansion. If an equivalent supported command stays within the request, use it without adding an approval step.
 
 ## What to return
 
-The exact command or sequence, a one-line note that the user's configured model is used by default, any permission or isolation caveat, and the resume command if the workflow is meant to continue later.
+For execution requests, run the authorized command and inspect its result and relevant artifacts; do not stop at printing a command or treat exit code zero as proof that the requested work is complete. Continue bounded follow-up within the existing scope when work remains. For command-only requests, return the command without executing it.
+
+Report the command, outcome, relevant checks, and any permission or validation gaps. Include a resume command only when the workflow is meant to continue later.

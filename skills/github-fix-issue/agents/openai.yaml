@@ -1,4 +1,4 @@
 interface:
   display_name: "Fix GitHub Issue"
-  short_description: "Analyze and implement fixes for GitHub issues"
-  default_prompt: "Use $github-fix-issue to analyze and fix this GitHub issue without publishing unless I explicitly ask."
+  short_description: "Investigate GitHub issues or complete authorized local fixes"
+  default_prompt: "Use $github-fix-issue to investigate this issue; implement and verify a fix only if I request it, without publishing unless explicitly authorized."

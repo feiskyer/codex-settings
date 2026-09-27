@@ -1,6 +1,6 @@
 ---
 name: minimax-image-skill
-description: Generate images through the MiniMax Image API. Use only when the user names MiniMax or a MiniMax image model such as `image-01` or `image-01-live`; for image requests with no provider named, use the default image skill instead.
+description: Generate images when the user names MiniMax or image-01/image-01-live. Use the default image skill when no provider is named.
 ---
 
 # MiniMax Image Skill
@@ -35,7 +35,7 @@ python3 "<skill-dir>/minimax_image.py" \
   --output "landscape.png"
 ```
 
-Use `--model image-01-live` for that model. Optional API fields are exposed through `--aspect-ratio`, `--width`, `--height`, `--seed`, `--n`, `--response-format`, and `--disable-prompt-optimizer`.
+Use `--model image-01-live` when requested. Consult `python3 "<skill-dir>/minimax_image.py" --help` for optional fields and accepted values.
 
 The helper downloads URL responses immediately because generated URLs expire. It also decodes base64 responses and creates output parent directories automatically. For multiple results, it adds a numeric suffix to the output filename.
 
@@ -43,5 +43,5 @@ The helper downloads URL responses immediately because generated URLs expire. It
 
 - Never print or persist the API key.
 - Do not call the API until the prompt and local output path pass validation.
-- If the API rejects a field combination, report the returned error and ask the user to adjust only that option.
+- If the API rejects a field combination, correct an assistant-chosen option when the user's requested result is unchanged; ask when resolving it would change a user constraint. Check for generated output before a bounded retry.
 - Do not claim success unless at least one image was saved locally.

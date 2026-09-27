@@ -1,6 +1,6 @@
 ---
 name: gpt-image-skill
-description: Generate or edit images through the OpenAI GPT Image API. Use only when the user names OpenAI, GPT Image, or a `gpt-image-*` model for image work; for image requests with no provider named, use the default image skill instead.
+description: Generate or edit images when the user names OpenAI, GPT Image, or a gpt-image model. Use the default image skill when no provider is named.
 ---
 
 # GPT Image Skill

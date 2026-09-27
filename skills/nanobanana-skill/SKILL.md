@@ -1,6 +1,6 @@
 ---
 name: nanobanana-skill
-description: Generate, edit, or composite images with Gemini / Nanobanana models through the bundled CLI wrapper. This is the default image skill — use it for any image generation or editing request that does not name a different provider.
+description: Generate, edit, or composite images with Gemini/Nanobanana. Default for image requests without a named provider; do not override a different provider the user chose.
 ---
 
 # Nanobanana Image Skill
@@ -71,4 +71,4 @@ Keep the shoe silhouette and logo placement intact. Replace the background with 
 
 ## When a run fails
 
-Confirm `GEMINI_API_KEY` is present, each input path exists and is readable, and the output directory is writable. If a feature looks unsupported, retry on `gemini-3.1-flash-image-preview` first.
+Check credential presence without printing its value, input readability, and output writability. For an unsupported option, consult the helper's accepted values. Correct assistant-chosen options within the requested result, but do not silently switch a user-selected model or provider. Before a bounded retry, check whether the earlier attempt already produced output; report the actual error if recovery would require new authority or changing the request.

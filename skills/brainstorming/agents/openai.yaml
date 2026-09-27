@@ -1,4 +1,4 @@
 interface:
   display_name: "头脑风暴"
-  short_description: "在进入实现前澄清需求、比较方案并形成可审阅的设计文档"
-  default_prompt: "Use $brainstorming to clarify this idea, compare approaches, and produce an approved design before implementation."
+  short_description: "澄清未决需求与关键取舍，按任务范围形成足以指导实现的设计"
+  default_prompt: "Use $brainstorming to resolve the open design decisions in this idea and respect whether I asked for design only or implementation too."

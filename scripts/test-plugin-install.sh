@@ -134,8 +134,23 @@ version="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["vers
 cache_root="$codex_home/plugins/cache/codex-settings/codex-settings/$version"
 test -f "$cache_root/.codex-plugin/plugin.json"
 test -f "$cache_root/skills/brainstorming/SKILL.md"
-cmp "$repo_root/skills/code-simplifier/SKILL.md" "$cache_root/skills/code-simplifier/SKILL.md"
-cmp "$repo_root/skills/code-simplifier/agents/openai.yaml" "$cache_root/skills/code-simplifier/agents/openai.yaml"
+# Compare the staged tree, not ignored files generated in the working tree.
+# Include references and helpers so moving instructions out of SKILL.md cannot
+# silently produce an incomplete installed skill.
+python3 - "$marketplace_root/skills" "$cache_root/skills" <<'PY'
+from pathlib import Path
+import sys
+
+source, installed = map(Path, sys.argv[1:])
+files = sorted(path for path in source.rglob("*") if path.is_file())
+assert files, "No staged skill files"
+for path in files:
+    relative = path.relative_to(source)
+    target = installed / relative
+    assert target.is_file(), f"Missing installed skill file: {relative}"
+    assert path.read_bytes() == target.read_bytes(), f"Installed content differs: {relative}"
+print(f"Verified {len(files)} installed skill files, including references and helpers.")
+PY
 test -f "$cache_root/skills/github-fix-issue/SKILL.md"
 test -f "$cache_root/skills/github-fix-issue/agents/openai.yaml"
 test -f "$cache_root/skills/github-review-pr/SKILL.md"

@@ -1,6 +1,6 @@
 {
   "name": "codex-settings",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Reusable Codex skills and workflows from feiskyer/codex-settings.",
   "author": {
     "name": "feiskyer",
@@ -27,7 +27,7 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Use the best Codex Settings skill for this task."
+      "Use a matching Codex Settings skill if this task needs one."
     ]
   }
 }

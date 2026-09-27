@@ -15,7 +15,7 @@
 A change in this repository is finished when all of these hold. Work through them without stopping for approval between steps:
 
 1. The change itself is complete, including every file it implies — a renamed or materially changed Skill also updates its `agents/openai.yaml`, and a new or removed Skill also updates the Skills table in `README.md`.
-2. The validation commands matching the changed files have been run and pass.
+2. The validation commands matching the changed files have been run and pass. Fix failures caused by the change and rerun affected checks; report unrelated failures separately.
 3. `.codex-plugin/plugin.json` `version` is bumped if released Plugin content changed.
 4. The final report states which validation commands ran, which integration checks were skipped and why, and any assumption the change rests on.
 
@@ -23,49 +23,11 @@ Stop early only for a genuine blocker: a missing credential, an ambiguous requir
 
 ## Validation Commands
 
-The offline suite below is hermetic. It runs locally, touches no network or production system, and needs no credentials. It writes inside the working tree, plus disposable fixtures in a `mktemp -d` directory under `$TMPDIR` that the test removes on exit. Run the parts that match the files you changed, fix what breaks, and rerun the affected checks — without asking for approval at each step.
+Use [CONTRIBUTING.md](CONTRIBUTING.md#验证) for the commands matching the changed files: TOML parsing for configs, structure and isolated Plugin installation for Skills/manifests, and syntax plus offline tests for executable helpers. Prose-only edits do not require unrelated provider or API runs.
 
-```bash
-# TOML syntax
-python3 -c 'import pathlib, tomllib; [tomllib.loads(p.read_text()) for p in pathlib.Path(".").glob("**/*.toml")]'
+The offline tests use disposable local fixtures, have no network or production access, and need no credentials. Run them, fix failures caused by the requested change, and rerun affected checks without asking for approval at each step. The Plugin install test uses an isolated temporary `CODEX_HOME`, not the user's installed plugins.
 
-# Plugin package and marketplace
-python3 -m json.tool .codex-plugin/plugin.json >/dev/null
-python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
-python3 ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
-
-# Skill structure
-for skill in skills/*; do
-  test ! -f "$skill/SKILL.md" || \
-    python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py "$skill"
-done
-
-# Python scripts and offline tests
-python3 -m compileall -q skills
-ruff check skills
-for test_dir in skills/*/tests; do
-  test ! -d "$test_dir" || python3 -m unittest discover -s "$test_dir" -v
-done
-
-# Bundled shell and JavaScript helpers
-bash -n skills/brainstorming/scripts/start-server.sh \
-  skills/brainstorming/scripts/stop-server.sh \
-  scripts/test-plugin-install.sh \
-  scripts/update-codex-plugins.sh \
-  scripts/test-update-codex-plugins.sh
-bash scripts/test-update-codex-plugins.sh
-node --check skills/brainstorming/scripts/server.cjs
-node --check skills/brainstorming/scripts/helper.js
-```
-
-Run provider integration checks only when the related provider files change:
-
-- Strict Codex config: with the relevant provider available, run `CODEX_HOME="$PWD" codex --strict-config exec --ephemeral --sandbox read-only --skip-git-repo-check -c mcp_servers.chrome.enabled=false -c web_search="disabled" "Reply exactly OK"`.
-- Default gateway: start `copilot-gateway`, then run `codex` or `codex doctor --summary`.
-- LiteLLM profile: start `litellm --config ~/.codex/litellm_config.yaml`, then run `codex --profile github-copilot`.
-- ChatGPT profile: authenticate with `codex login`, then run `codex --profile chatgpt`.
-- Codex Plugin: when the marketplace, Plugin manifest, Skills, or Plugin test script changes, run `scripts/test-plugin-install.sh` with the installed stable Codex CLI.
-- External API Skills: prefer mocked/offline tests. Use real credentials only for an explicitly requested integration test.
+Provider integration checks apply only to changed provider files. External API Skills use mocked/offline tests unless the user explicitly requests a live integration run. If a check requires changing the user's environment, authentication, or running services beyond the task's authorization, report the missing prerequisite instead.
 
 ## Style and Skill Conventions
 
