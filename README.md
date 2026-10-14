@@ -284,6 +284,7 @@ litellm --config ~/.codex/litellm_config.yaml
 
 | 名称 | 用途 | 依赖或注意事项 |
 | --- | --- | --- |
+| [atlas-image-skill](skills/atlas-image-skill/) | 使用 Atlas Cloud API 生成图片 | 需要 Python 3.9+ 和 `ATLASCLOUD_API_KEY`；仅在点名 Atlas Cloud 时触发 |
 | [brainstorming](skills/brainstorming/) | 澄清未决需求和关键取舍，形成足以实现的设计 | 保留设计评审要求，不重复审批已授权的明确方案；浏览器伴侣需同意后启动 |
 | [claude-skill](skills/claude-skill/) | 把任务交给 Claude Code CLI 执行 | 需要安装并登录 `claude` CLI |
 | [code-simplifier](skills/code-simplifier/) | 在保持行为不变的前提下简化代码、提升可读性 | 默认聚焦最近修改的代码，遵循目标项目约定 |
