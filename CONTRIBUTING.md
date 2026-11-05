@@ -12,7 +12,7 @@
 
 - 不要把真实凭据或用户本地运行状态提交到仓库。
 - 对重复、脆弱或需要确定性执行的逻辑，应在 Skill 的 `scripts/` 目录中提供脚本，不要要求 Agent 每次临时生成。
-- 为脚本、解析器、参数处理、文件行为和常见失败路径，在 `skills/<name>/tests/` 下添加离线测试。
+- 优先运行现有相关检查。新增或改变行为、修复具体回归且现有覆盖不足时，在 `skills/<name>/tests/` 下增改必要的离线测试；低风险、可逆且只镜像实现的改动不新增测试。
 - `SKILL.md` 只保留 Skill 触发后 Agent 真正需要的核心流程；较长的参考资料应放在 `references/` 中。
 - 当 Skill 的用途、显示名称或默认调用方式发生变化时，同步更新 `agents/openai.yaml`。
 
@@ -31,19 +31,16 @@
 ### 配置、Skills 与 Plugin 结构
 
 ```bash
-# TOML syntax (config changes)
-python3 -c 'import pathlib, tomllib; [tomllib.loads(p.read_text()) for p in pathlib.Path(".").glob("**/*.toml")]'
+# TOML syntax (replace with the changed file paths)
+python3 -c 'import pathlib, sys, tomllib; [tomllib.loads(pathlib.Path(p).read_text()) for p in sys.argv[1:]]' config.toml
 
 # Plugin package and marketplace
 python3 -m json.tool .codex-plugin/plugin.json >/dev/null
 python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
 python3 ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
 
-# Skill structure (use only changed directories for a local edit)
-for skill in skills/*; do
-  test ! -f "$skill/SKILL.md" || \
-    python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py "$skill"
-done
+# Skill structure (replace with a changed Skill directory; repeat as needed)
+python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/brainstorming
 
 git diff --check
 ```

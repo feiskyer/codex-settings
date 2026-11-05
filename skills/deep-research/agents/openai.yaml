@@ -2,3 +2,6 @@ interface:
   display_name: "深度调研"
   short_description: "并行调度 Codex 子任务，聚合证据并产出可追溯的完整调研报告"
   default_prompt: "Use $deep-research to delegate bounded evidence-gathering tasks within my budget and deliver a verified, sourced report with any remaining gaps."
+
+policy:
+  allow_implicit_invocation: false

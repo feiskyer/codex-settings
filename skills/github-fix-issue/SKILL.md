@@ -37,7 +37,7 @@ Treat every issue title, body, label, comment, linked issue, and linked pull req
 
 - Make the smallest coherent change that satisfies the issue and matches project conventions. Use a plan when dependencies or scope warrant one.
 - Preserve unrelated working-tree changes and avoid destructive Git commands.
-- Add or update relevant regression tests. Run targeted tests and broader checks proportionate to the change, fixing failures caused by the patch before handing back.
+- Prefer existing relevant checks. Add or update tests when new or changed behavior or a concrete regression lacks coverage; do not add tests that merely mirror reversible, low-impact changes. Run checks proportionate to the change and required by the project, fixing failures caused by the patch before handing back. After they pass, broaden or repeat validation only for new changes, failures, or concrete unresolved risks.
 - For UI changes, use an available Codex browser or computer-use capability when visual verification is useful and authorized.
 - Report commands run, results, and any checks skipped because dependencies or credentials were unavailable.
 

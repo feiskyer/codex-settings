@@ -14,7 +14,7 @@
 
 A change in this repository is finished when all of these hold. Work through them without stopping for approval between steps:
 
-1. The change itself is complete, including every file it implies — a renamed or materially changed Skill also updates its `agents/openai.yaml`, and a new or removed Skill also updates the Skills table in `README.md`.
+1. The change itself is complete, including every file it implies — update a Skill's `agents/openai.yaml` when its purpose, display name, or default invocation changes, and update the Skills table in `README.md` when a Skill is added or removed.
 2. The validation commands matching the changed files have been run and pass. Fix failures caused by the change and rerun affected checks; report unrelated failures separately.
 3. `.codex-plugin/plugin.json` `version` is bumped if released Plugin content changed.
 4. The final report states which validation commands ran, which integration checks were skipped and why, and any assumption the change rests on.
@@ -38,7 +38,7 @@ Provider integration checks apply only to changed provider files. External API S
 - Write Skill instructions in imperative form. Keep the core workflow concise and move repeatable or fragile behavior into bundled scripts.
 - Keep `SKILL.md` small enough to load cheaply. Move workflow detail, command references, and long examples into `references/` and have `SKILL.md` point at them per step, so a run only reads what that step needs. Do not restate a script's `--help` output; point at it.
 - Assume the reading model has judgment. Write down what it cannot infer — this repository's paths, invariants, and failure modes — and leave out step-by-step recipes for decisions it can make from the request. These Skills are installed by others and run on models this repository does not control, so over-specified procedure constrains more than it helps.
-- Add or refresh `agents/openai.yaml` when a Skill is created or materially renamed. Its `default_prompt` must mention `$skill-name`.
+- Add `agents/openai.yaml` when a Skill is created; refresh it when the Skill's purpose, display name, or default invocation changes. Its `default_prompt` must mention `$skill-name`.
 - Bump `.codex-plugin/plugin.json` `version` whenever released Plugin content changes. Use semantic versions for releases and a single `+codex.<cachebuster>` suffix only for local iteration.
 - Keep default installation documentation unpinned so it follows the repository default branch. Use matching immutable `v<version>` tags as release checkpoints, not as the default install ref.
 - Scripts must expose `--help`, validate local inputs before network/API calls, return non-zero on failure, and create output parent directories when appropriate.

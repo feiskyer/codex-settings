@@ -287,9 +287,9 @@ litellm --config ~/.codex/litellm_config.yaml
 | [brainstorming](skills/brainstorming/) | 澄清未决需求和关键取舍，形成足以实现的设计 | 保留设计评审要求，不重复审批已授权的明确方案；浏览器伴侣需同意后启动 |
 | [claude-skill](skills/claude-skill/) | 把任务交给 Claude Code CLI 执行 | 需要安装并登录 `claude` CLI |
 | [code-simplifier](skills/code-simplifier/) | 在保持行为不变的前提下简化代码、提升可读性 | 默认聚焦最近修改的代码，遵循目标项目约定 |
-| [deep-research](skills/deep-research/) | 并行执行深度调研并汇总为完整报告 | 需要 Codex CLI；联网和 MCP 权限按任务配置 |
+| [deep-research](skills/deep-research/) | 并行执行深度调研并汇总为完整报告 | 仅显式调用 `$deep-research` 时使用；需要 Codex CLI；联网和 MCP 权限按任务配置 |
 | [gpt-image-skill](skills/gpt-image-skill/) | 使用 OpenAI Image API 生成或编辑图片 | 需要 Python、`OPENAI_API_KEY` 和对应依赖；仅在点名 OpenAI/GPT Image 时触发 |
-| [grill-me](skills/grill-me/) | 逐项追问方案，并维护术语表和 ADR | 会在项目中写入设计与决策文档 |
+| [grill-me](skills/grill-me/) | 逐问逐答检验方案的关键假设与取舍 | 默认在对话中交付；仅按要求维护术语表和 ADR |
 | [minimax-image-skill](skills/minimax-image-skill/) | 使用 MiniMax Image API 生成图片 | 需要 Python 3.9+ 和 `MINIMAX_API_KEY`；仅在点名 MiniMax 时触发 |
 | [handoff](skills/handoff/) | 把当前会话整理成下一位 Agent 可直接接手的交接文档 | 交接文件写入系统临时目录 |
 | [github-fix-issue](skills/github-fix-issue/) | 调查 GitHub Issue，或完成已授权的本地修复与验证 | 调查请求保持只读；默认不 push 或创建 PR |
@@ -333,31 +333,9 @@ export CODEX_HOME="$(pwd)"
 
 该设置只对当前终端会话生效。此后根目录的 `config.toml`、`*.config.toml` 和 `skills/` 会作为当前 Codex Home 使用。
 
-修改配置或 Skill 后，建议运行：
+修改后按 [CONTRIBUTING.md 的验证说明](CONTRIBUTING.md#验证) 选择与改动对应的检查。
 
-```bash
-# 检查 TOML 语法
-python3 -c 'import pathlib, tomllib; [tomllib.loads(p.read_text()) for p in pathlib.Path(".").glob("**/*.toml")]'
-
-# 检查 Codex Plugin 包
-python3 -m json.tool .codex-plugin/plugin.json >/dev/null
-python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
-python3 ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
-bash scripts/test-plugin-install.sh
-
-# 检查 Codex 配置、认证、MCP 和网络状态
-codex doctor --summary
-
-# 查看当前版本支持的功能开关
-codex features list
-
-# 查看 MCP 配置
-codex mcp list
-```
-
-新增或修改脚本时，还要检查 `--help`、最小可用示例和常见失败路径。测试外部 API 时使用最小权限凭据，并清理日志中的敏感信息。
-
-发布新的 Plugin 内容时，更新 `.codex-plugin/plugin.json` 的语义化版本，并创建匹配的 `v<version>` Git 标签；当前 Plugin 版本为 `1.5.1`，发布时应使用 `v1.5.1`。本地反复安装同一版本时使用单一 `+codex.<cachebuster>` 后缀，避免命中旧缓存。
+发布新的 Plugin 内容时，更新 `.codex-plugin/plugin.json` 的语义化版本，并创建匹配的 `v<version>` Git 标签；当前 Plugin 版本为 `1.5.2`，发布时应使用 `v1.5.2`。本地反复安装同一版本时使用单一 `+codex.<cachebuster>` 后缀，避免命中旧缓存。
 
 ## 安全提醒
 

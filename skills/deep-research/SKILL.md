@@ -1,6 +1,6 @@
 ---
 name: deep-research
-description: 用 Codex CLI 子任务完成多来源深度调研并综合成带出处的报告。用于确实需要分头取证的研究，不用于单次查证或已给定材料的总结。
+description: 仅在用户显式调用 `$deep-research` 时，用 Codex CLI 子任务完成多来源深度调研并综合成带出处的报告。不用于单次查证或已给定材料的总结。
 ---
 
 # Deep Research
