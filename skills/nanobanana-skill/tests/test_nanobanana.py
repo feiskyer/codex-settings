@@ -96,7 +96,7 @@ class ExecutionTests(unittest.TestCase):
 
             self.assertEqual(saved_paths, [str(output_path.resolve())])
             self.assertTrue(output_path.is_file())
-            self.assertEqual(client.models.params["model"], args.model)
+            self.assertEqual(client.models.params["model"], "gemini-nano-banana-2.1")
 
     def test_text_only_response_is_a_failure_after_optional_outputs_are_saved(self):
         text_part = SimpleNamespace(

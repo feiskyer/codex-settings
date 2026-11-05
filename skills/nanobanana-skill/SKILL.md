@@ -5,7 +5,7 @@ description: Generate, edit, or composite images with Gemini/Nanobanana. Default
 
 # Nanobanana Image Skill
 
-Use the bundled `nanobanana.py` to generate or edit images with Gemini image models. The default path targets **Nano Banana 2** (`gemini-3.1-flash-image-preview`) with **thinking summaries** and **Google Search grounding** on, because those defaults are the main reason to use this skill instead of a generic image prompt.
+Use the bundled `nanobanana.py` to generate or edit images with Gemini image models. The default path targets **Nano Banana 2.1** (`gemini-nano-banana-2.1`) with **thinking summaries** and **Google Search grounding** on, because those defaults are the main reason to use this skill instead of a generic image prompt.
 
 ## Requirements
 
@@ -17,11 +17,11 @@ The CLI can print `--help` without credentials. It validates local input files b
 
 ## Defaults
 
-Model `gemini-3.1-flash-image-preview`, search grounding on, thinking summaries on at level `high`, resolution `1K`, and no aspect ratio unless the request implies a shape. Do not make the user choose a model, search mode, or thinking mode unless they asked for that level of control.
+Model `gemini-nano-banana-2.1`, search grounding on, thinking summaries on at level `high`, resolution `1K`, and no aspect ratio unless the request implies a shape. Do not make the user choose a model, search mode, or thinking mode unless they asked for that level of control.
 
 Leaving aspect ratio unspecified is usually better for edits, because Gemini can match the input image shape. For text-only generation, set one only when the user implies a format such as poster, square post, banner, phone wallpaper, or ultrawide hero.
 
-Worth overriding: `--model gemini-3-pro-image-preview` for very detail-heavy or typography-sensitive work (slower); `--resolution 512px` for quick ideation (Nanobanana 2 models only), `2K`/`4K` for polished deliverables; `--thinking-level low` when latency beats refinement; search off when the user wants a purely imaginative result. Run `python3 /absolute/path/to/nanobanana.py --help` for the exact accepted values, including the full aspect-ratio and model lists.
+Worth overriding: `--model gemini-3-pro-image` for very detail-heavy or typography-sensitive work (slower); `--resolution 512px` for quick ideation (Nanobanana 2 models only), `2K`/`4K` for polished deliverables; `--thinking-level low` when latency beats refinement; search off when the user wants a purely imaginative result. Run `python3 /absolute/path/to/nanobanana.py --help` for the exact accepted values, including the full aspect-ratio and model lists.
 
 ## Run it
 

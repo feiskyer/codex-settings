@@ -357,7 +357,7 @@ codex mcp list
 
 新增或修改脚本时，还要检查 `--help`、最小可用示例和常见失败路径。测试外部 API 时使用最小权限凭据，并清理日志中的敏感信息。
 
-发布新的 Plugin 内容时，更新 `.codex-plugin/plugin.json` 的语义化版本，并创建匹配的 `v<version>` Git 标签；当前 Plugin 版本为 `1.5.0`，发布时应使用 `v1.5.0`。本地反复安装同一版本时使用单一 `+codex.<cachebuster>` 后缀，避免命中旧缓存。
+发布新的 Plugin 内容时，更新 `.codex-plugin/plugin.json` 的语义化版本，并创建匹配的 `v<version>` Git 标签；当前 Plugin 版本为 `1.5.1`，发布时应使用 `v1.5.1`。本地反复安装同一版本时使用单一 `+codex.<cachebuster>` 后缀，避免命中旧缓存。
 
 ## 安全提醒
 

@@ -45,8 +45,9 @@ SUPPORTED_ASPECT_RATIOS = [
 ]
 
 SUPPORTED_MODELS = [
-    "gemini-3.1-flash-image-preview",
-    "gemini-3-pro-image-preview",
+    "gemini-nano-banana-2.1",
+    "gemini-3.1-flash-image",
+    "gemini-3-pro-image",
     "gemini-2.5-flash-image",
 ]
 
@@ -104,9 +105,9 @@ def parse_args(argv=None):
     parser.add_argument(
         "--model",
         type=str,
-        default="gemini-3.1-flash-image-preview",
+        default="gemini-nano-banana-2.1",
         choices=SUPPORTED_MODELS,
-        help="Model to use for image generation (default: gemini-3.1-flash-image-preview)",
+        help="Model to use for image generation (default: gemini-nano-banana-2.1)",
     )
     parser.add_argument(
         "--resolution",
